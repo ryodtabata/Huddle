@@ -101,10 +101,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 8,
     width: '100%',
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
+
     elevation: 2,
   },
   bio: {
@@ -138,9 +135,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
   },
   buttonText: {
     fontSize: 14,

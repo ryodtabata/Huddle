@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
 import { NearbyPeople } from '../../components/MainPage/NearbyPeople';
-import MessagesComponent from '../../components/Messages/Messages.component';
+import MessagesComponent from '../../components/Messages/MessagesConvo';
 
 const TABS = [
   { key: 'nearby', label: 'People Nearby' },

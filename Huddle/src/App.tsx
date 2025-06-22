@@ -7,12 +7,13 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { useColorScheme } from 'react-native';
 import { Navigation } from './navigation';
+import { View } from 'react-native';
 
 const MyLightTheme = {
   ...NavigationDefaultTheme,
   colors: {
     ...NavigationDefaultTheme.colors,
-    background: '#e0e0e0', // Your custom light background color
+    background: '#f5f5f7', // Replace with your light theme color
   },
 };
 
@@ -20,7 +21,7 @@ const MyDarkTheme = {
   ...NavigationDarkTheme,
   colors: {
     ...NavigationDarkTheme.colors,
-    background: '#181818', // Your custom dark background color
+    background: '#121212', // Replace with your dark theme color
   },
 };
 
@@ -36,8 +37,10 @@ export function App() {
   }, []);
 
   return (
-    <NavigationContainer theme={theme}>
-      <Navigation />
-    </NavigationContainer>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <NavigationContainer theme={theme}>
+        <Navigation />
+      </NavigationContainer>
+    </View>
   );
 }

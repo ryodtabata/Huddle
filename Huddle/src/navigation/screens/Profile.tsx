@@ -3,6 +3,10 @@ import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileCard } from '../../components/Profile/ProfileCard';
 
+// profile screen component
+// this will be the profile screen where users can see their profile and edit it
+// to do: add functionality to edit profile, view friends, and settings
+// choose a different colour
 export function Profile() {
   return (
     <View style={styles.container}>
@@ -17,13 +21,13 @@ export function Profile() {
         </Pressable>
       </View>
       <ProfileCard
-        name="John Doe"
-        age={28}
-        bio="Avid traveler and tech enthusiast."
+        name="Ryo Demetrius Tabata"
+        age={24}
+        bio="Avid traveler and tech enthusiast. Owner of said app:)"
         distance="Nearby"
         imageUrl="https://i.pravatar.cc/250?u=mail@ashallendesign.co.uk"
         verified={true}
-        tags={['#anime', '#coding', '#music']}
+        tags={['#chess', '#coding', '#music', '#dancing']}
       />
       <Pressable
         onPress={() => alert('Edit Profile Pressed')}
@@ -44,7 +48,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#181c24',
   },
   actionRow: {
     flexDirection: 'row',
