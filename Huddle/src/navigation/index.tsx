@@ -16,20 +16,20 @@ export const Navigation = () => (
     }}
   >
     <Tab.Screen
-      name="Home"
-      component={Home}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="home-outline" color={color} size={size} />
-        ),
-      }}
-    />
-    <Tab.Screen
       name="Messages"
       component={Messages}
       options={{
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="chatbubble-outline" color={color} size={size} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Home"
+      component={Home}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Ionicons name="globe" color={color} size={size} />
         ),
       }}
     />
