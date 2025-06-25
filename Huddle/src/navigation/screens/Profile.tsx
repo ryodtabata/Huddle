@@ -2,9 +2,7 @@ import React from "react";
 import { View, StyleSheet, Pressable, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ProfileCard } from "../../components/Profile/ProfileCard";
-import { Friends } from "./Freinds";
 import { useNavigation } from "@react-navigation/native";
-import { Settings } from "./Settings";
 
 type NavigationProp = {
   navigate: (screen: string) => void;
@@ -45,7 +43,7 @@ export function Profile() {
         tags={["#chess", "#coding", "#music", "#dancing"]}
       />
       <Pressable
-        onPress={() => alert("Edit Profile Pressed")}
+        onPress={() => navigation.navigate("EditProfile")}
         style={({ pressed }) => [
           styles.editButton,
           { backgroundColor: pressed ? "#29b6f6" : "#4fc3f7" },

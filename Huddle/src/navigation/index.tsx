@@ -7,6 +7,7 @@ import { Profile } from "./screens/Profile";
 import { Messages } from "./screens/Messages";
 import { Friends } from "./screens/Freinds";
 import { Settings } from "./screens/Settings";
+import EditProfile from "../components/Profile/EditProfileComponent";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -16,12 +17,13 @@ function ProfileStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "#f8f9fa" },
+        contentStyle: { backgroundColor: "#181c24" },
       }}
     >
       <Stack.Screen name="ProfileMain" component={Profile} />
       <Stack.Screen name="Friends" component={Friends} />
       <Stack.Screen name="Settings" component={Settings} />
+      <Stack.Screen name="EditProfile" component={EditProfile} />
     </Stack.Navigator>
   );
 }
