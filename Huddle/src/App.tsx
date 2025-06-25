@@ -2,18 +2,18 @@ import {
   NavigationContainer,
   DarkTheme as NavigationDarkTheme,
   DefaultTheme as NavigationDefaultTheme,
-} from '@react-navigation/native';
-import * as SplashScreen from 'expo-splash-screen';
-import * as React from 'react';
-import { useColorScheme } from 'react-native';
-import { Navigation } from './navigation';
-import { View } from 'react-native';
+} from "@react-navigation/native";
+import * as SplashScreen from "expo-splash-screen";
+import * as React from "react";
+import { useColorScheme } from "react-native";
+import { Navigation } from "./navigation";
+import { View } from "react-native";
 
 const MyLightTheme = {
   ...NavigationDefaultTheme,
   colors: {
     ...NavigationDefaultTheme.colors,
-    background: '#f5f5f7', // Replace with your light theme color
+    background: "#f5f5f7", // Replace with your light theme color
   },
 };
 
@@ -21,13 +21,13 @@ const MyDarkTheme = {
   ...NavigationDarkTheme,
   colors: {
     ...NavigationDarkTheme.colors,
-    background: '#121212', // Replace with your dark theme color
+    background: "#121212", // Replace with your dark theme color
   },
 };
 
 export function App() {
   const colorScheme = useColorScheme();
-  const theme = colorScheme === 'dark' ? MyDarkTheme : MyLightTheme;
+  const theme = colorScheme === "dark" ? MyDarkTheme : MyLightTheme;
 
   React.useEffect(() => {
     SplashScreen.preventAutoHideAsync();
