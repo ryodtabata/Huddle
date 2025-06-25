@@ -5,8 +5,6 @@ import MockList from "../../components/MockList";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-// for now, no api calls to friends so we will make a mock list
-// to do add back button...
 export function Friends() {
   const navigation = useNavigation<any>();
 
