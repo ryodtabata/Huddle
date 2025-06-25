@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React from "react";
+import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 interface ProfileCardProps {
   name: string;
@@ -8,8 +8,8 @@ interface ProfileCardProps {
   bio: string;
   distance: string;
   imageUrl: string;
-  verified?: boolean; // Add this prop
-  tags?: string[]; // Optional tags prop
+  verified?: boolean;
+  tags?: string[];
 }
 
 export const ProfileCard: React.FC<ProfileCardProps> = ({
@@ -44,93 +44,93 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   </View>
 );
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
     height: 550,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    justifyContent: "flex-start",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
     borderRadius: 16,
     width: width * 0.9,
   },
   avatarContainer: {
-    position: 'relative',
+    position: "relative",
     width: 225,
     height: 225,
     marginBottom: 8,
     marginTop: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatar: {
     width: 225,
     height: 225,
     borderRadius: 60,
     borderWidth: 4,
-    borderColor: '#fff',
+    borderColor: "#fff",
   },
   verifiedIcon: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 8,
     right: 8,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
   },
   name: {
     fontSize: 28,
-    fontWeight: '700',
-    color: '#222',
+    fontWeight: "700",
+    color: "#222",
     marginBottom: 2,
   },
   age: {
-    fontWeight: '400',
-    color: '#888',
+    fontWeight: "400",
+    color: "#888",
   },
   distance: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 8,
   },
   bioContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 12,
     marginTop: 4,
     marginBottom: 8,
-    width: '100%',
+    width: "100%",
 
     elevation: 2,
   },
   bio: {
     fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
+    color: "#333",
+    textAlign: "center",
   },
   tags: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    flexWrap: "wrap",
+    justifyContent: "center",
     marginBottom: 12,
     marginTop: 0,
   },
   tag: {
-    backgroundColor: '#eee',
-    color: '#444',
+    backgroundColor: "#eee",
+    color: "#444",
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
     fontSize: 14,
   },
   actions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   button: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 16,
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#222',
+    fontWeight: "600",
+    color: "#222",
   },
 });

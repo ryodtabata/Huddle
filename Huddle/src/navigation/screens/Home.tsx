@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Pressable, Text } from 'react-native';
-import { NearbyPeople } from '../../components/MainPage/NearbyPeople';
-import MessagesComponent from '../../components/Messages/MessagesConvo';
+import React, { useState } from "react";
+import { StyleSheet, View, Pressable, Text } from "react-native";
+import { ListofPeople } from "../../components/MainPage/ListofPeople";
+import MessagesComponent from "../../components/Messages/MessagesConvo";
+import PuclicChatsPage from "../../components/MainPage/PublicChatspage";
 
 const TABS = [
-  { key: 'nearby', label: 'People Nearby' },
-  { key: 'chats', label: 'Public Chats' },
+  { key: "nearby", label: "People Nearby" },
+  { key: "chats", label: "Public Chats" },
 ];
 
 export function Home() {
-  const [activeTab, setActiveTab] = useState('nearby');
+  const [activeTab, setActiveTab] = useState("nearby");
 
   return (
     <View style={styles.container}>
@@ -37,7 +38,7 @@ export function Home() {
       </View>
       {/* Tab Content */}
       <View style={styles.content}>
-        {activeTab === 'nearby' ? <NearbyPeople /> : <MessagesComponent />}
+        {activeTab === "nearby" ? <ListofPeople /> : <PuclicChatsPage />}
       </View>
     </View>
   );
@@ -47,13 +48,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 48,
-    alignItems: 'center',
-    backgroundColor: '#181c24',
+    alignItems: "center",
+    backgroundColor: "#181c24",
   },
   tabRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 24,
-    backgroundColor: '#232a36',
+    backgroundColor: "#232a36",
     borderRadius: 24,
     padding: 4,
   },
@@ -61,27 +62,27 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 28,
     borderRadius: 20,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   tabButtonActive: {
-    backgroundColor: '#4fc3f7',
+    backgroundColor: "#4fc3f7",
   },
   tabButtonText: {
-    color: '#b0b0b0',
-    fontWeight: 'bold',
+    color: "#b0b0b0",
+    fontWeight: "bold",
     fontSize: 16,
   },
   tabButtonTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   content: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
   },
   contentText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
   },
 });
