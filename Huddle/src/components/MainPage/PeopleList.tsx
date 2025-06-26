@@ -1,57 +1,16 @@
-import React from 'react';
-import MockList from '../MockList'; //mock
-import PeopleList from './PeopleList';
-import { useState } from 'react';
-// import { GroupChat } from './GroupChat.component';
-
+import React, { useState } from 'react';
 import {
   View,
   Text,
   FlatList,
   Pressable,
   StyleSheet,
+  Modal,
   Image,
   TextInput,
-
-} from "react-native";
-import { ProfileModal } from "../Profile/ProfileModal";
-
 } from 'react-native';
 import { ProfileCard } from '../Profile/ProfileCard';
-
-
-const mockPeople = [
-  {
-    id: '1',
-    name: 'Alice Smith',
-    age: 25,
-    bio: 'Loves hiking and photography.',
-    distance: '0.5 miles',
-    imageUrl: 'https://i.pravatar.cc/250?img=1',
-    verified: true,
-    tags: ['#hiking', '#photography', '#travel'],
-  },
-  {
-    id: '2',
-    name: 'Bob Johnson',
-    age: 30,
-    bio: 'Coffee enthusiast and coder.',
-    distance: '1 mile',
-    imageUrl: 'https://i.pravatar.cc/250?img=2',
-    verified: false,
-    tags: ['#coffee', '#coding', '#music'],
-  },
-  {
-    id: '3',
-    name: 'Carol Lee',
-    age: 27,
-    bio: 'Runner and foodie.',
-    distance: '2 miles',
-    imageUrl: 'https://i.pravatar.cc/250?img=3',
-    verified: true,
-    tags: ['#running', '#food', '#anime'],
-  },
-];
+import MockList from '../MockList'; //mock data
 
 type Person = {
   id: string;
@@ -64,35 +23,35 @@ type Person = {
   tags: string[];
 };
 
-interface ListofPeopleProps {
-  showAsFriends?: boolean;
-  onMessage?: (person: Person) => void;
-}
+type PeopleListProps = {
+  people: Person[];
+};
 
-export function ListofPeople({
-  showAsFriends = false,
-  onMessage,
-}: ListofPeopleProps) {
+export default function PeopleList({ people }: PeopleListProps) {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [search, setSearch] = useState('');
 
-  const filteredPeople = mockPeople.filter(
-    (person) =>
-      person.name.toLowerCase().includes(search.toLowerCase()) ||
-      person.bio.toLowerCase().includes(search.toLowerCase())
+  const filteredPeople = MockList.filter((person) =>
+    person.name.toLowerCase().includes(search.toLowerCase())
   );
-
   return (
     <View style={styles.container}>
       <TextInput
         style={styles.searchBar}
-        placeholder="Search people..."
+        placeholder="Search nearby people..."
         placeholderTextColor="#aaa"
         value={search}
         onChangeText={setSearch}
       />
       <FlatList
         data={filteredPeople}
+        ListEmptyComponent={
+          <View style={{ padding: 32, alignItems: 'center' }}>
+            <Text style={{ color: '#aaa', fontSize: 18 }}>
+              No results found.
+            </Text>
+          </View>
+        }
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Pressable
@@ -117,31 +76,60 @@ export function ListofPeople({
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
 
-      <ProfileModal
+      <Modal
         visible={!!selectedPerson}
-        person={selectedPerson}
-        onClose={() => setSelectedPerson(null)}
-        isFriend={showAsFriends}
-        onMessage={onMessage}
-      />
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setSelectedPerson(null)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            {selectedPerson && (
+              <ProfileCard
+                name={selectedPerson.name}
+                age={selectedPerson.age}
+                bio={selectedPerson.bio}
+                distance={selectedPerson.distance}
+                imageUrl={selectedPerson.imageUrl}
+                verified={selectedPerson.verified}
+                tags={selectedPerson.tags}
+              />
+            )}
+            <Pressable
+              style={styles.closeButton}
+              onPress={() => setSelectedPerson(null)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  info: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
+    minWidth: '100%',
     backgroundColor: '#181c24',
     padding: 16,
   },
   searchBar: {
+    minHeight: 50,
+    width: '100%',
     backgroundColor: '#232a36',
     borderRadius: 24,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    color: '#fff',
     fontSize: 16,
+    color: '#fff',
     marginBottom: 14,
+    paddingVertical: 0,
+    textAlignVertical: 'center',
   },
   personItem: {
     flexDirection: 'row',
@@ -151,6 +139,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     elevation: 2,
+    flex: 1,
   },
   avatar: {
     width: 54,
@@ -160,10 +149,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#4fc3f7',
   },
-  info: {
-    flex: 1,
-    justifyContent: 'center',
-  },
+
   personName: {
     color: '#fff',
     fontWeight: 'bold',
@@ -187,7 +173,6 @@ const styles = StyleSheet.create({
   separator: {
     height: 12,
   },
-
   modalBackground: {
     flex: 1,
     backgroundColor: 'rgba(24,28,36,0.92)',
