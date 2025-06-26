@@ -10,11 +10,15 @@ import {
   FlatList,
   Pressable,
   StyleSheet,
-  Modal,
   Image,
   TextInput,
+
+} from "react-native";
+import { ProfileModal } from "../Profile/ProfileModal";
+
 } from 'react-native';
 import { ProfileCard } from '../Profile/ProfileCard';
+
 
 const mockPeople = [
   {
@@ -60,7 +64,15 @@ type Person = {
   tags: string[];
 };
 
-export function ListofPeople() {
+interface ListofPeopleProps {
+  showAsFriends?: boolean;
+  onMessage?: (person: Person) => void;
+}
+
+export function ListofPeople({
+  showAsFriends = false,
+  onMessage,
+}: ListofPeopleProps) {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [search, setSearch] = useState('');
 
@@ -105,34 +117,13 @@ export function ListofPeople() {
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
 
-      <Modal
+      <ProfileModal
         visible={!!selectedPerson}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setSelectedPerson(null)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
-            {selectedPerson && (
-              <ProfileCard
-                name={selectedPerson.name}
-                age={selectedPerson.age}
-                bio={selectedPerson.bio}
-                distance={selectedPerson.distance}
-                imageUrl={selectedPerson.imageUrl}
-                verified={selectedPerson.verified}
-                tags={selectedPerson.tags}
-              />
-            )}
-            <Pressable
-              style={styles.closeButton}
-              onPress={() => setSelectedPerson(null)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+        person={selectedPerson}
+        onClose={() => setSelectedPerson(null)}
+        isFriend={showAsFriends}
+        onMessage={onMessage}
+      />
     </View>
   );
 }
@@ -196,6 +187,7 @@ const styles = StyleSheet.create({
   separator: {
     height: 12,
   },
+
   modalBackground: {
     flex: 1,
     backgroundColor: 'rgba(24,28,36,0.92)',

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,14 +9,16 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const MessagesConvo = (props: any) => {
-  const { item, onClose, messages = [], currentUser = 'Me' } = props;
-  const [input, setInput] = useState('');
+  const { item, onClose, messages = [], currentUser = "Me" } = props;
+  const [input, setInput] = useState("");
   const [allMessages, setAllMessages] = useState(messages);
   const flatListRef = useRef<FlatList>(null);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     setAllMessages(messages);
@@ -29,7 +31,7 @@ const MessagesConvo = (props: any) => {
   }, [allMessages]);
 
   const handleSend = () => {
-    if (input.trim() === '') return;
+    if (input.trim() === "") return;
     setAllMessages([
       ...allMessages,
       {
@@ -37,12 +39,12 @@ const MessagesConvo = (props: any) => {
         sender: currentUser,
         text: input,
         time: new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
+          hour: "2-digit",
+          minute: "2-digit",
         }),
       },
     ]);
-    setInput('');
+    setInput("");
   };
 
   if (!item) return null;
@@ -52,10 +54,10 @@ const MessagesConvo = (props: any) => {
       <View style={styles.overlay}>
         <KeyboardAvoidingView
           style={styles.iphoneContainer}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           {/* Header */}
-          <View style={styles.headerBar}>
+          <View style={[styles.headerBar, { paddingTop: insets.top }]}>
             <Pressable style={styles.backButton} onPress={onClose}>
               <Ionicons name="chevron-back" size={28} color="#007aff" />
             </Pressable>
@@ -83,7 +85,7 @@ const MessagesConvo = (props: any) => {
                 <Text
                   style={[
                     styles.messageText,
-                    msg.sender === currentUser && { color: '#fff' },
+                    msg.sender === currentUser && { color: "#fff" },
                   ]}
                 >
                   {msg.text}
@@ -117,17 +119,17 @@ const MessagesConvo = (props: any) => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: '#f5f5f7',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#f5f5f7",
+    justifyContent: "center",
+    alignItems: "center",
   },
   iphoneContainer: {
-    width: '100%',
+    width: "100%",
     maxWidth: 480,
-    height: '100%',
-    backgroundColor: '#f5f5f7',
-    alignSelf: 'center',
-    shadowColor: '#000',
+    height: "100%",
+    backgroundColor: "#f5f5f7",
+    alignSelf: "center",
+    shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
@@ -136,11 +138,11 @@ const styles = StyleSheet.create({
   },
   headerBar: {
     height: 56,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e5ea',
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderBottomColor: "#e5e5ea",
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 8,
   },
   backButton: {
@@ -148,61 +150,61 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   headerText: {
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 18,
-    color: '#222',
+    color: "#222",
   },
   messagesList: {
     padding: 12,
     flexGrow: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   messageBubble: {
-    maxWidth: '75%',
+    maxWidth: "75%",
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 22,
     marginBottom: 8,
-    alignSelf: 'flex-start',
-    shadowColor: '#000',
+    alignSelf: "flex-start",
+    shadowColor: "#000",
     shadowOpacity: 0.04,
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 2,
   },
   myMessage: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#007aff',
+    alignSelf: "flex-end",
+    backgroundColor: "#007aff",
     borderBottomRightRadius: 6,
   },
   otherMessage: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#e5e5ea',
+    alignSelf: "flex-start",
+    backgroundColor: "#e5e5ea",
     borderBottomLeftRadius: 6,
   },
   sender: {
     fontSize: 12,
-    fontWeight: 'bold',
-    color: '#007aff',
+    fontWeight: "bold",
+    color: "#007aff",
     marginBottom: 2,
   },
   messageText: {
-    color: '#222',
+    color: "#222",
     fontSize: 16,
   },
   time: {
     fontSize: 11,
-    color: '#888',
+    color: "#888",
     marginTop: 4,
-    textAlign: 'right',
-    alignSelf: 'flex-end',
+    textAlign: "right",
+    alignSelf: "flex-end",
   },
   inputRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: '#e5e5ea',
+    borderTopColor: "#e5e5ea",
     padding: 10,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
   },
   input: {
     flex: 1,
@@ -210,18 +212,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     fontSize: 16,
-    backgroundColor: '#f5f5f7',
+    backgroundColor: "#f5f5f7",
     marginRight: 8,
-    color: '#222',
+    color: "#222",
   },
   sendButton: {
-    backgroundColor: '#007aff',
+    backgroundColor: "#007aff",
     borderRadius: 20,
     padding: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

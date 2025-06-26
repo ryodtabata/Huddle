@@ -8,6 +8,8 @@ import * as React from "react";
 import { useColorScheme } from "react-native";
 import { Navigation } from "./navigation";
 import { View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AuthManager } from "./components/Auth/AuthManager";
 
 const MyLightTheme = {
   ...NavigationDefaultTheme,
@@ -37,10 +39,14 @@ export function App() {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <NavigationContainer theme={theme}>
-        <Navigation />
-      </NavigationContainer>
-    </View>
+    <SafeAreaProvider>
+      <AuthManager>
+        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+          <NavigationContainer theme={theme}>
+            <Navigation />
+          </NavigationContainer>
+        </View>
+      </AuthManager>
+    </SafeAreaProvider>
   );
 }
