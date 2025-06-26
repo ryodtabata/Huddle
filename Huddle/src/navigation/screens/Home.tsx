@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
-import { ListofPeople } from '../../components/MainPage/ListofPeople';
+import ListofPeople from '../../components/MainPage/ListofPeople';
 import MessagesComponent from '../../components/Messages/MessagesConvo';
 import PuclicChatsPage from '../../components/MainPage/PublicChatspage';
 
