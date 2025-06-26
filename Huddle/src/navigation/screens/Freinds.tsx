@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  Alert,
+} from "react-native";
 import { ListofPeople } from "../../components/MainPage/ListofPeople";
 import MockList from "../../components/MockList";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,6 +14,12 @@ import { useNavigation } from "@react-navigation/native";
 
 export function Friends() {
   const navigation = useNavigation<any>();
+
+  const handleMessage = (person: any) => {
+    // TODO: Navigate to messages screen with this person
+    Alert.alert("Message", `Opening chat with ${person.name}...`);
+    // navigation.navigate('Messages', { person });
+  };
 
   return (
     <View style={styles.container}>
@@ -19,7 +32,7 @@ export function Friends() {
         </Pressable>
         <Text style={styles.title}>Friends List</Text>
       </View>
-      <ListofPeople />
+      <ListofPeople showAsFriends={true} onMessage={handleMessage} />
     </View>
   );
 }

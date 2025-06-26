@@ -5,11 +5,10 @@ import {
   FlatList,
   Pressable,
   StyleSheet,
-  Modal,
   Image,
   TextInput,
 } from "react-native";
-import { ProfileCard } from "../Profile/ProfileCard";
+import { ProfileModal } from "../Profile/ProfileModal";
 
 const mockPeople = [
   {
@@ -55,7 +54,15 @@ type Person = {
   tags: string[];
 };
 
-export function ListofPeople() {
+interface ListofPeopleProps {
+  showAsFriends?: boolean;
+  onMessage?: (person: Person) => void;
+}
+
+export function ListofPeople({
+  showAsFriends = false,
+  onMessage,
+}: ListofPeopleProps) {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [search, setSearch] = useState("");
 
@@ -100,34 +107,13 @@ export function ListofPeople() {
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
 
-      <Modal
+      <ProfileModal
         visible={!!selectedPerson}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setSelectedPerson(null)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
-            {selectedPerson && (
-              <ProfileCard
-                name={selectedPerson.name}
-                age={selectedPerson.age}
-                bio={selectedPerson.bio}
-                distance={selectedPerson.distance}
-                imageUrl={selectedPerson.imageUrl}
-                verified={selectedPerson.verified}
-                tags={selectedPerson.tags}
-              />
-            )}
-            <Pressable
-              style={styles.closeButton}
-              onPress={() => setSelectedPerson(null)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+        person={selectedPerson}
+        onClose={() => setSelectedPerson(null)}
+        isFriend={showAsFriends}
+        onMessage={onMessage}
+      />
     </View>
   );
 }
@@ -190,29 +176,5 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 12,
-  },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: "rgba(24,28,36,0.92)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "94%",
-    backgroundColor: "transparent",
-    borderRadius: 20,
-    alignItems: "center",
-  },
-  closeButton: {
-    marginTop: 18,
-    backgroundColor: "#4fc3f7",
-    paddingVertical: 10,
-    paddingHorizontal: 32,
-    borderRadius: 20,
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
   },
 });
