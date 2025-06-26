@@ -1,11 +1,32 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
-import { Home } from './screens/Home';
-import { Profile } from './screens/Profile';
-import { Messages } from './screens/Messages'; // Make sure this exists
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
+import { Home } from "./screens/Home";
+import { Profile } from "./screens/Profile";
+import { Messages } from "./screens/Messages";
+import { Friends } from "./screens/Freinds";
+import { Settings } from "./screens/Settings";
+import EditProfile from "../components/Profile/EditProfileComponent";
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+function ProfileStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: "#181c24" },
+      }}
+    >
+      <Stack.Screen name="ProfileMain" component={Profile} />
+      <Stack.Screen name="Friends" component={Friends} />
+      <Stack.Screen name="Settings" component={Settings} />
+      <Stack.Screen name="EditProfile" component={EditProfile} />
+    </Stack.Navigator>
+  );
+}
 
 export const Navigation = () => (
   <Tab.Navigator
@@ -35,7 +56,7 @@ export const Navigation = () => (
     />
     <Tab.Screen
       name="Profile"
-      component={Profile}
+      component={ProfileStack}
       options={{
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="person-outline" color={color} size={size} />

@@ -10,11 +10,7 @@ import {
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MessagesConvo from './MessagesConvo';
 
-//probably need to debounce the search input for performance eventually
-//need to edit how long a message can be before we cut off
-
 const ListOfMessages = () => {
-  // mock conversations for now
   const mockConversations = [
     {
       id: '1',
@@ -82,7 +78,7 @@ const ListOfMessages = () => {
           <Ionicons name="add" size={25} color="#4fc3f7" />
         </Pressable>
       </View>
-      {/*will eventuiallt send a messages array i guess, FIREBA */}
+      {/*will eventuially send a messages array i guess, FIREBA */}
       <FlatList
         data={filteredConvos}
         keyExtractor={(item) => item.id}

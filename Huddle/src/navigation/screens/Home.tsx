@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
-import { NearbyPeople } from '../../components/MainPage/NearbyPeople';
+import { ListofPeople } from '../../components/MainPage/ListofPeople';
 import MessagesComponent from '../../components/Messages/MessagesConvo';
+import PuclicChatsPage from '../../components/MainPage/PublicChatspage';
 
 const TABS = [
   { key: 'nearby', label: 'People Nearby' },
@@ -10,9 +11,6 @@ const TABS = [
 
 export function Home() {
   const [activeTab, setActiveTab] = useState('nearby');
-
-  //api call to get all nearby users
-  //api call to get all public group chats
 
   return (
     <View style={styles.container}>
@@ -38,8 +36,7 @@ export function Home() {
         ))}
       </View>
       <View style={styles.content}>
-        {/* need to pass the id of user, or use context to get user id */}
-        {activeTab === 'nearby' ? <NearbyPeople /> : <MessagesComponent />}
+        {activeTab === 'nearby' ? <ListofPeople /> : <PuclicChatsPage />}
       </View>
     </View>
   );
