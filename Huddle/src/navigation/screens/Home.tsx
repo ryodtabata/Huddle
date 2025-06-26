@@ -11,9 +11,11 @@ const TABS = [
 export function Home() {
   const [activeTab, setActiveTab] = useState('nearby');
 
+  //api call to get all nearby users
+  //api call to get all public group chats
+
   return (
     <View style={styles.container}>
-      {/* Tab Buttons */}
       <View style={styles.tabRow}>
         {TABS.map((tab) => (
           <Pressable
@@ -35,8 +37,8 @@ export function Home() {
           </Pressable>
         ))}
       </View>
-      {/* Tab Content */}
       <View style={styles.content}>
+        {/* need to pass the id of user, or use context to get user id */}
         {activeTab === 'nearby' ? <NearbyPeople /> : <MessagesComponent />}
       </View>
     </View>
