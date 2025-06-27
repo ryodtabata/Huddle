@@ -5,11 +5,11 @@ import {
 } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
 import * as React from "react";
-import { useColorScheme } from "react-native";
+import { useColorScheme, ActivityIndicator, View } from "react-native";
 import { Navigation } from "./navigation";
-import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { AuthManager } from "./components/Auth/AuthManager";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthNavigator } from "./screens/auth/AuthNavigator";
 
 const MyLightTheme = {
   ...NavigationDefaultTheme,
@@ -27,10 +27,29 @@ const MyDarkTheme = {
   },
 };
 
-export function App() {
+function AppContent() {
   const colorScheme = useColorScheme();
   const theme = colorScheme === "dark" ? MyDarkTheme : MyLightTheme;
+  const { user, loading, isAuthenticated } = useAuth();
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#181c24" }}>
+        <ActivityIndicator size="large" color="#4fc3f7" />
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <NavigationContainer theme={theme}>
+        {isAuthenticated ? <Navigation /> : <AuthNavigator />}
+      </NavigationContainer>
+    </View>
+  );
+}
+
+export function App() {
   React.useEffect(() => {
     SplashScreen.preventAutoHideAsync();
     setTimeout(() => {
@@ -40,13 +59,9 @@ export function App() {
 
   return (
     <SafeAreaProvider>
-      <AuthManager>
-        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-          <NavigationContainer theme={theme}>
-            <Navigation />
-          </NavigationContainer>
-        </View>
-      </AuthManager>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

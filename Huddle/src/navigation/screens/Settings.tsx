@@ -3,11 +3,33 @@ import { StyleSheet, View, ScrollView, Pressable, Alert } from "react-native";
 import { Text } from "@react-navigation/elements";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { signOutUser } from "../../firebase/authService";
 
 export function Settings() {
   const navigation = useNavigation<any>();
+  
   const handleSettingsPress = (setting: string) => {
     Alert.alert(setting, `${setting} functionality coming soon!`);
+  };
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Sign Out", 
+          style: "destructive",
+          onPress: async () => {
+            const result = await signOutUser();
+            if (!result.success) {
+              Alert.alert("Error", "Failed to sign out. Please try again.");
+            }
+          }
+        },
+      ]
+    );
   };
 
   const SettingsItem = ({
@@ -181,6 +203,12 @@ export function Settings() {
         </SettingsSection>
 
         <SettingsSection title="Account Actions">
+          <SettingsItem
+            icon="log-out-outline"
+            title="Sign Out"
+            subtitle="Sign out of your account"
+            onPress={handleLogout}
+          />
           <SettingsItem
             icon="download-outline"
             title="Download Your Data"
