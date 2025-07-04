@@ -12,13 +12,8 @@ import {
   StyleSheet,
   Image,
   TextInput,
-
-} from "react-native";
-import { ProfileModal } from "../Profile/ProfileModal";
-
 } from 'react-native';
-import { ProfileCard } from '../Profile/ProfileCard';
-
+import { ProfileModal } from '../Profile/ProfileModal';
 
 const mockPeople = [
   {

@@ -1,8 +1,9 @@
-import React from "react";
-import { StyleSheet, View, ScrollView, Pressable, Alert } from "react-native";
-import { Text } from "@react-navigation/elements";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import React from 'react';
+import { StyleSheet, View, ScrollView, Pressable, Alert } from 'react-native';
+import { Text } from '@react-navigation/elements';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { signOut } from '../../firebase/authFunctions'; // Adjust the import path as needed
 
 export function Settings() {
   const navigation = useNavigation<any>();
@@ -26,7 +27,7 @@ export function Settings() {
     <Pressable
       style={({ pressed }) => [
         styles.settingsItem,
-        { backgroundColor: pressed ? "#232a36" : "transparent" },
+        { backgroundColor: pressed ? '#232a36' : 'transparent' },
       ]}
       onPress={onPress}
     >
@@ -77,25 +78,25 @@ export function Settings() {
             icon="person-outline"
             title="Account Information"
             subtitle="Email, phone, username"
-            onPress={() => handleSettingsPress("Account Information")}
+            onPress={() => signOut()}
           />
           <SettingsItem
             icon="shield-checkmark-outline"
             title="Privacy"
             subtitle="Control who can see your content"
-            onPress={() => handleSettingsPress("Privacy")}
+            onPress={() => handleSettingsPress('Privacy')}
           />
           <SettingsItem
             icon="key-outline"
             title="Password & Security"
             subtitle="Change password, two-factor auth"
-            onPress={() => handleSettingsPress("Password & Security")}
+            onPress={() => handleSettingsPress('Password & Security')}
           />
           <SettingsItem
             icon="checkmark-circle-outline"
             title="Request Verification"
             subtitle="Get verified badge"
-            onPress={() => handleSettingsPress("Request Verification")}
+            onPress={() => handleSettingsPress('Request Verification')}
           />
         </SettingsSection>
 
@@ -104,25 +105,25 @@ export function Settings() {
             icon="eye-off-outline"
             title="Blocked Accounts"
             subtitle="Manage blocked users"
-            onPress={() => handleSettingsPress("Blocked Accounts")}
+            onPress={() => handleSettingsPress('Blocked Accounts')}
           />
           <SettingsItem
             icon="notifications-outline"
             title="Notifications"
             subtitle="Push, email, SMS"
-            onPress={() => handleSettingsPress("Notifications")}
+            onPress={() => handleSettingsPress('Notifications')}
           />
           <SettingsItem
             icon="time-outline"
             title="Time Spent"
             subtitle="See your activity"
-            onPress={() => handleSettingsPress("Time Spent")}
+            onPress={() => handleSettingsPress('Time Spent')}
           />
           <SettingsItem
             icon="location-outline"
             title="Location Services"
             subtitle="Manage location sharing"
-            onPress={() => handleSettingsPress("Location Services")}
+            onPress={() => handleSettingsPress('Location Services')}
           />
         </SettingsSection>
 
@@ -131,19 +132,19 @@ export function Settings() {
             icon="moon-outline"
             title="Theme"
             subtitle="Dark, light, auto"
-            onPress={() => handleSettingsPress("Theme")}
+            onPress={() => handleSettingsPress('Theme')}
           />
           <SettingsItem
             icon="language-outline"
             title="Language"
             subtitle="App language"
-            onPress={() => handleSettingsPress("Language")}
+            onPress={() => handleSettingsPress('Language')}
           />
           <SettingsItem
             icon="text-outline"
             title="Font Size"
             subtitle="Adjust text size"
-            onPress={() => handleSettingsPress("Font Size")}
+            onPress={() => handleSettingsPress('Font Size')}
           />
         </SettingsSection>
 
@@ -152,31 +153,31 @@ export function Settings() {
             icon="help-circle-outline"
             title="Help Center"
             subtitle="FAQs and support articles"
-            onPress={() => handleSettingsPress("Help Center")}
+            onPress={() => handleSettingsPress('Help Center')}
           />
           <SettingsItem
             icon="mail-outline"
             title="Contact Us"
             subtitle="Get help from our team"
-            onPress={() => handleSettingsPress("Contact Us")}
+            onPress={() => handleSettingsPress('Contact Us')}
           />
           <SettingsItem
             icon="flag-outline"
             title="Report a Problem"
             subtitle="Report bugs or issues"
-            onPress={() => handleSettingsPress("Report a Problem")}
+            onPress={() => handleSettingsPress('Report a Problem')}
           />
           <SettingsItem
             icon="document-text-outline"
             title="Terms of Service"
             subtitle="Read our terms"
-            onPress={() => handleSettingsPress("Terms of Service")}
+            onPress={() => handleSettingsPress('Terms of Service')}
           />
           <SettingsItem
             icon="shield-outline"
             title="Privacy Policy"
             subtitle="How we use your data"
-            onPress={() => handleSettingsPress("Privacy Policy")}
+            onPress={() => handleSettingsPress('Privacy Policy')}
           />
         </SettingsSection>
 
@@ -185,13 +186,13 @@ export function Settings() {
             icon="download-outline"
             title="Download Your Data"
             subtitle="Export your information"
-            onPress={() => handleSettingsPress("Download Your Data")}
+            onPress={() => handleSettingsPress('Download Your Data')}
           />
           <SettingsItem
             icon="pause-outline"
             title="Deactivate Account"
             subtitle="Temporarily disable account"
-            onPress={() => handleSettingsPress("Deactivate Account")}
+            onPress={() => handleSettingsPress('Deactivate Account')}
           />
           <SettingsItem
             icon="trash-outline"
@@ -199,11 +200,11 @@ export function Settings() {
             subtitle="Permanently delete account"
             onPress={() =>
               Alert.alert(
-                "Delete Account",
-                "Are you sure you want to permanently delete your account? This action cannot be undone.",
+                'Delete Account',
+                'Are you sure you want to permanently delete your account? This action cannot be undone.',
                 [
-                  { text: "Cancel", style: "cancel" },
-                  { text: "Delete", style: "destructive" },
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Delete', style: 'destructive' },
                 ]
               )
             }
@@ -222,16 +223,16 @@ export function Settings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#181c24",
+    backgroundColor: '#181c24',
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#232a36",
+    borderBottomColor: '#232a36',
   },
   backButton: {
     marginRight: 16,
@@ -239,8 +240,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: 'bold',
+    color: '#fff',
   },
   scrollView: {
     flex: 1,
@@ -251,29 +252,29 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#4fc3f7",
+    fontWeight: '600',
+    color: '#4fc3f7',
     marginBottom: 12,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     letterSpacing: 1,
   },
   sectionContent: {
-    backgroundColor: "#232a36",
+    backgroundColor: '#232a36',
     borderRadius: 12,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   settingsItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: 0.5,
-    borderBottomColor: "#3a4149",
+    borderBottomColor: '#3a4149',
   },
   settingsItemLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
   },
   settingsItemText: {
@@ -282,26 +283,26 @@ const styles = StyleSheet.create({
   },
   settingsItemTitle: {
     fontSize: 16,
-    fontWeight: "500",
-    color: "#fff",
+    fontWeight: '500',
+    color: '#fff',
     marginBottom: 2,
   },
   settingsItemSubtitle: {
     fontSize: 14,
-    color: "#999",
+    color: '#999',
   },
   footer: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 40,
     paddingHorizontal: 20,
   },
   footerText: {
     fontSize: 12,
-    color: "#666",
+    color: '#666',
     marginBottom: 4,
   },
   row: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 10,
   },
 });
