@@ -1,64 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { AuthScreen } from "./AuthScreen";
-import { ProfileSetup } from "./ProfileSetup";
-
-type AuthState =
-  | "loading"
-  | "unauthenticated"
-  | "authenticated"
-  | "profile-setup";
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { AuthScreen } from './AuthScreen';
+import { useUser } from '../../store/UserContext';
 
 interface AuthManagerProps {
   children: React.ReactNode;
 }
 
 export function AuthManager({ children }: AuthManagerProps) {
-  const [authState, setAuthState] = useState<AuthState>("loading");
-  const [userNeedsProfileSetup, setUserNeedsProfileSetup] = useState(false);
-
-  useEffect(() => {
-    // TODO: Check if user is already authenticated
-    // For now, simulate loading and set to unauthenticated
-    const checkAuthState = async () => {
-      try {
-        // Simulate checking authentication status
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // TODO: Replace with actual auth check
-        // const user = await getCurrentUser();
-        // if (user) {
-        //   const hasProfile = await checkUserProfile(user.uid);
-        //   if (hasProfile) {
-        //     setAuthState('authenticated');
-        //   } else {
-        //     setAuthState('profile-setup');
-        //   }
-        // } else {
-        //   setAuthState('unauthenticated');
-        // }
-
-        setAuthState("unauthenticated");
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        setAuthState("unauthenticated");
-      }
-    };
-
-    checkAuthState();
-  }, []);
+  const { user, loading } = useUser();
 
   const handleAuthSuccess = () => {
-    // In a real app, you'd check if the user needs profile setup
-    // For demo purposes, we'll always show profile setup for new signups
-    setAuthState("profile-setup");
+    console.log('Auth success');
+    // User context will handle the rest
   };
 
-  const handleProfileComplete = () => {
-    setAuthState("authenticated");
-  };
-
-  if (authState === "loading") {
+  if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Huddle</Text>
@@ -67,33 +24,29 @@ export function AuthManager({ children }: AuthManagerProps) {
     );
   }
 
-  if (authState === "unauthenticated") {
+  if (!user) {
     return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
   }
 
-  if (authState === "profile-setup") {
-    return <ProfileSetup onComplete={handleProfileComplete} />;
-  }
-
-  // User is authenticated and has completed profile setup
+  // User is authenticated - show home page
   return <>{children}</>;
 }
 
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#181c24",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#181c24',
   },
   loadingText: {
     fontSize: 36,
-    fontWeight: "bold",
-    color: "#4fc3f7",
+    fontWeight: 'bold',
+    color: '#4fc3f7',
     marginBottom: 8,
   },
   loadingSubtext: {
     fontSize: 16,
-    color: "#b0b0b0",
+    color: '#b0b0b0',
   },
 });

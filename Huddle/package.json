@@ -22,6 +22,7 @@
     "expo-linear-gradient": "^14.1.5",
     "expo-splash-screen": "~0.30.7",
     "expo-system-ui": "~5.0.6",
+    "firebase": "^11.10.0",
     "lodash": "^4.17.21",
     "react": "19.0.0",
     "react-dom": "19.0.0",
