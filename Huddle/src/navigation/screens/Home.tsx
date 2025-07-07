@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
 import { ListofPeople } from '../../components/MainPage/ListofPeople';
 import PuclicChatsPage from '../../components/MainPage/PublicChatspage';
+import { useUser } from '../../store/UserContext';
 
 const TABS = [
   { key: 'nearby', label: 'People Nearby' },
@@ -9,6 +10,7 @@ const TABS = [
 ];
 
 export function Home() {
+  const { user, userProfile, loading } = useUser();
   const [activeTab, setActiveTab] = useState('nearby');
 
   return (
@@ -74,7 +76,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    width: "100%",
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
