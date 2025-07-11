@@ -13,6 +13,8 @@ import {
   distanceBetween,
 } from 'geofire-common';
 
+const GEOHASH_PRECISION = 6; // Use the same precision as your query bounds
+
 // Set or update user location with geohash
 export const setUserLocation = async (
   userId,
@@ -21,7 +23,10 @@ export const setUserLocation = async (
   userData = {}
 ) => {
   try {
-    const geohash = geohashForLocation([latitude, longitude]);
+    const geohash = geohashForLocation([latitude, longitude]).substring(
+      0,
+      GEOHASH_PRECISION
+    );
     await setDoc(
       doc(db, 'users', userId),
       {
@@ -29,7 +34,7 @@ export const setUserLocation = async (
         location: {
           latitude,
           longitude,
-          geohash,
+          geohash, // store prefix only
           lastUpdated: new Date(),
         },
         isOnline: true,
@@ -53,27 +58,36 @@ export const getNearbyUsers = async (
 ) => {
   const center = [latitude, longitude];
   const bounds = geohashQueryBounds(center, radiusKm);
-  const usersRef = collection(db, 'users');
   const promises = [];
+  const usersRef = collection(db, 'users');
+
+  console.log('Query bounds:', bounds);
 
   for (const b of bounds) {
     const q = query(
       usersRef,
       where('location.geohash', '>=', b[0]),
-      where('location.geohash', '<=', b[1]),
-      where('isOnline', '==', true)
+      where('location.geohash', '<=', b[1])
     );
-    promises.push(getDocs(q));
+    const snap = await getDocs(q);
+    console.log(`Bound ${b[0]} - ${b[1]}: ${snap.docs.length} docs`);
+    snap.docs.forEach((docSnap) => {
+      console.log('Doc:', docSnap.id, docSnap.data());
+    });
+    promises.push(Promise.resolve(snap));
   }
 
   const snapshots = await Promise.all(promises);
+  let totalDocs = 0;
   const matchingDocs = [];
 
   for (const snap of snapshots) {
+    totalDocs += snap.docs.length;
     for (const docSnap of snap.docs) {
       const data = docSnap.data();
+      console.log('Doc:', docSnap.id, data); // <-- Log each doc returned
       if (
-        docSnap.id !== excludeUserId &&
+        (excludeUserId === null || docSnap.id !== excludeUserId) &&
         data.location &&
         typeof data.location.latitude === 'number' &&
         typeof data.location.longitude === 'number'
@@ -100,6 +114,5 @@ export const getNearbyUsers = async (
 
   // Sort by distance
   uniqueUsers.sort((a, b) => a.distance - b.distance);
-
   return uniqueUsers;
 };
