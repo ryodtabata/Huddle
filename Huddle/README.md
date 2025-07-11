@@ -6,9 +6,10 @@ This is a React Native app, build to run across all mobile devices
 
 npm i
 npm run web/android/ios
-message ryo for firebaseconfig file
 
-# what needs to be implemented still ... to do list if you will no order of importance
+will need to contact ryotabata for the config file, not included in git becuase includes the api key and havbent gotten around to setup .env file yet...
+
+# what needs to be implemented still ... to do list if you will
 
 -google sign up/sign in does not work still
 -forget password is not implemented
@@ -36,3 +37,4 @@ TESTING:
 location stuff seems weird still
 radius decision---> for now max -> then make it editable
 decision about how often api calls should be made ? best way to do it with limited write/fetches
+

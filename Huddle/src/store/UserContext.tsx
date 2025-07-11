@@ -3,7 +3,10 @@ import { User } from 'firebase/auth';
 import { auth, db } from '../firebase/configFirebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { setUserLocation } from '../firebase/geoService';
+import * as Location from 'expo-location';
 
+// --- Define UserProfile type ---
 interface UserProfile {
   uid: string;
   email: string;
@@ -17,6 +20,7 @@ interface UserProfile {
   location?: any;
 }
 
+// --- Define UserContextType to match your context value ---
 interface UserContextType {
   user: User | null;
   userProfile: UserProfile | null;
@@ -24,6 +28,7 @@ interface UserContextType {
   refreshUserProfile: () => Promise<void>;
 }
 
+// --- Create context with correct type ---
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
@@ -31,15 +36,43 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Location update effect
+  useEffect(() => {
+    let intervalId: any;
+
+    const updateLocation = async () => {
+      if (!user) return;
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+
+      const location = await Location.getCurrentPositionAsync({});
+      await setUserLocation(
+        user.uid,
+        location.coords.latitude,
+        location.coords.longitude,
+        {
+          displayName: user.displayName,
+          email: user.email,
+        }
+      );
+    };
+
+    if (user) {
+      updateLocation();
+      intervalId = setInterval(updateLocation, 60 * 1000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [user]);
+
+  // Fetch user profile
   const fetchUserProfile = async (uid: string) => {
     try {
-      console.log('Fetching user profile for UID:', uid);
       const userDoc = await getDoc(doc(db, 'users', uid));
-
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        console.log('User profile data:', userData);
-
         setUserProfile({
           uid,
           email: userData.email,
@@ -53,7 +86,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           location: userData.location || null,
         });
       } else {
-        console.log('No user profile found in Firestore');
         setUserProfile({
           uid,
           email: user?.email || '',
@@ -61,8 +93,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch (error) {
-      console.error('Error fetching user profile:', error);
-      // Fallback to basic auth info
       setUserProfile({
         uid,
         email: user?.email || '',
@@ -79,59 +109,37 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-      console.log('Auth state changed:', authUser?.email || 'No user');
       setUser(authUser);
-
       if (authUser) {
         await fetchUserProfile(authUser.uid);
       } else {
         setUserProfile(null);
       }
-
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // Real-time listener with better error handling
   useEffect(() => {
     if (user) {
-      console.log('Setting up real-time listener for user:', user.uid);
-
-      const unsubscribe = onSnapshot(
-        doc(db, 'users', user.uid),
-        (doc) => {
-          if (doc.exists()) {
-            const userData = doc.data();
-            console.log('Real-time user profile update:', userData);
-
-            setUserProfile({
-              uid: user.uid,
-              email: userData.email,
-              displayName: userData.displayName,
-              profileImage: userData.profileImage,
-              bio: userData.bio,
-              age: userData.age,
-              hideAge: userData.hideAge || false,
-              interests: userData.interests,
-              createdAt: userData.createdAt,
-              location: userData.location || null,
-            });
-          } else {
-            console.log('User document does not exist in real-time listener');
-          }
-        },
-        (error) => {
-          console.error('Error in real-time listener:', error);
-          // Don't crash the app, just log the error
-          // The user can still use cached data
+      const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+        if (doc.exists()) {
+          const userData = doc.data();
+          setUserProfile({
+            uid: user.uid,
+            email: userData.email,
+            displayName: userData.displayName,
+            profileImage: userData.profileImage,
+            bio: userData.bio,
+            age: userData.age,
+            hideAge: userData.hideAge || false,
+            interests: userData.interests,
+            createdAt: userData.createdAt,
+            location: userData.location || null,
+          });
         }
-      );
-
-      return () => {
-        console.log('Cleaning up real-time listener');
-        unsubscribe();
-      };
+      });
+      return () => unsubscribe();
     }
   }, [user]);
 

@@ -1,9 +1,5 @@
-import React from 'react';
-import MockList from '../MockList'; //mock
-import PeopleList from './PeopleList';
-import { useState } from 'react';
-// import { GroupChat } from './GroupChat.component';
-
+import React, { useState, useEffect } from 'react';
+import { setUserLocation, getNearbyUsers } from '../../firebase/geoService';
 import {
   View,
   Text,
@@ -12,41 +8,10 @@ import {
   StyleSheet,
   Image,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { ProfileModal } from '../Profile/ProfileModal';
-
-const mockPeople = [
-  {
-    id: '1',
-    name: 'Alice Smith',
-    age: 25,
-    bio: 'Loves hiking and photography.',
-    distance: '0.5 miles',
-    imageUrl: 'https://i.pravatar.cc/250?img=1',
-    verified: true,
-    tags: ['#hiking', '#photography', '#travel'],
-  },
-  {
-    id: '2',
-    name: 'Bob Johnson',
-    age: 30,
-    bio: 'Coffee enthusiast and coder.',
-    distance: '1 mile',
-    imageUrl: 'https://i.pravatar.cc/250?img=2',
-    verified: false,
-    tags: ['#coffee', '#coding', '#music'],
-  },
-  {
-    id: '3',
-    name: 'Carol Lee',
-    age: 27,
-    bio: 'Runner and foodie.',
-    distance: '2 miles',
-    imageUrl: 'https://i.pravatar.cc/250?img=3',
-    verified: true,
-    tags: ['#running', '#food', '#anime'],
-  },
-];
+import { useUser } from '../../store/UserContext';
 
 type Person = {
   id: string;
@@ -68,10 +33,60 @@ export function ListofPeople({
   showAsFriends = false,
   onMessage,
 }: ListofPeopleProps) {
+  const { userProfile } = useUser(); // <-- Get userProfile from context
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [search, setSearch] = useState('');
+  const [people, setPeople] = useState<Person[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredPeople = mockPeople.filter(
+  // Replace these with real user location in production
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    const fetchPeople = async () => {
+      console.log('Fetching nearby users... with location:', {
+        latitude: userProfile?.location?.latitude,
+        longitude: userProfile?.location?.longitude,
+      });
+      if (
+        !userProfile?.location?.latitude ||
+        !userProfile?.location?.longitude
+      ) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const users = await getNearbyUsers(
+          userProfile.location.latitude,
+          userProfile.location.longitude,
+          500
+        );
+        const mapped = users.map((u: any) => ({
+          id: u.uid,
+          name: u.displayName || 'Unknown',
+          age: u.age || 0,
+          bio: u.bio || '',
+          distance: u.distance ? `${u.distance.toFixed(1)} km` : '',
+          imageUrl: u.profileImage || 'https://i.pravatar.cc/150?u=' + u.uid,
+          verified: u.verified || false,
+          tags: u.tags || [],
+        }));
+        setPeople(mapped);
+        console.log('Fetched people:', mapped);
+      } catch (e) {
+        setPeople([]);
+      }
+      setLoading(false);
+    };
+
+    fetchPeople();
+    intervalId = setInterval(fetchPeople, 30000); // 30 seconds
+
+    return () => clearInterval(intervalId);
+  }, [userProfile?.location?.latitude, userProfile?.location?.longitude]);
+
+  const filteredPeople = people.filter(
     (person) =>
       person.name.toLowerCase().includes(search.toLowerCase()) ||
       person.bio.toLowerCase().includes(search.toLowerCase())
@@ -86,31 +101,39 @@ export function ListofPeople({
         value={search}
         onChangeText={setSearch}
       />
-      <FlatList
-        data={filteredPeople}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Pressable
-            style={({ pressed }) => [
-              styles.personItem,
-              pressed && { backgroundColor: '#263043' },
-            ]}
-            onPress={() => setSelectedPerson(item)}
-          >
-            <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
-            <View style={styles.info}>
-              <Text style={styles.personName}>
-                {item.name}, <Text style={styles.personAge}>{item.age}</Text>
-              </Text>
-              <Text style={styles.personDistance}>{item.distance} away</Text>
-              <Text style={styles.personBio} numberOfLines={1}>
-                {item.bio}
-              </Text>
-            </View>
-          </Pressable>
-        )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
+      {loading ? (
+        <ActivityIndicator
+          color="#4fc3f7"
+          size="large"
+          style={{ marginTop: 40 }}
+        />
+      ) : (
+        <FlatList
+          data={filteredPeople}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <Pressable
+              style={({ pressed }) => [
+                styles.personItem,
+                pressed && { backgroundColor: '#263043' },
+              ]}
+              onPress={() => setSelectedPerson(item)}
+            >
+              <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
+              <View style={styles.info}>
+                <Text style={styles.personName}>
+                  {item.name}, <Text style={styles.personAge}>{item.age}</Text>
+                </Text>
+                <Text style={styles.personDistance}>{item.distance} away</Text>
+                <Text style={styles.personBio} numberOfLines={1}>
+                  {item.bio}
+                </Text>
+              </View>
+            </Pressable>
+          )}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+      )}
 
       <ProfileModal
         visible={!!selectedPerson}
