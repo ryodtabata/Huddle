@@ -15,7 +15,9 @@ import {
 import { db } from './configFirebase';
 import { getDistance } from 'geolib';
 
-const PROXIMITY_RADIUS = 5000; // 5km in meters
+// TODO: FOR DEVELOPMENT ONLY - Set to large radius to include all users
+// In production, change back to smaller radius
+const PROXIMITY_RADIUS = 20000000; // 20,000km in meters (basically global for dev)
 
 // Generate a location-based chat room ID
 const generateLocationChatId = (latitude, longitude) => {
@@ -36,10 +38,10 @@ export const joinProximityChat = async (userId, userName, userLocation) => {
       userLocation.latitude,
       userLocation.longitude
     );
-    
+
     const chatRef = doc(db, 'publicChats', chatId);
     const chatDoc = await getDoc(chatRef);
-    
+
     if (!chatDoc.exists()) {
       // Create new proximity chat
       await setDoc(chatRef, {
@@ -71,7 +73,7 @@ export const joinProximityChat = async (userId, userName, userLocation) => {
         });
       }
     }
-    
+
     return chatId;
   } catch (error) {
     console.error('Error joining proximity chat:', error);
@@ -88,10 +90,10 @@ export const getProximityChats = async (userLocation) => {
 
     const chatsRef = collection(db, 'publicChats');
     const q = query(chatsRef, where('type', '==', 'proximity'));
-    
+
     const snapshot = await getDocs(q);
     const nearbyChats = [];
-    
+
     snapshot.forEach((doc) => {
       const chatData = doc.data();
       const distance = getDistance(
@@ -104,7 +106,7 @@ export const getProximityChats = async (userLocation) => {
           longitude: chatData.centerLocation.longitude,
         }
       );
-      
+
       // Include chats within 5km radius
       if (distance <= PROXIMITY_RADIUS) {
         nearbyChats.push({
@@ -119,10 +121,10 @@ export const getProximityChats = async (userLocation) => {
         });
       }
     });
-    
+
     // Sort by distance
     nearbyChats.sort((a, b) => a.distance - b.distance);
-    
+
     return nearbyChats;
   } catch (error) {
     console.error('Error getting proximity chats:', error);
@@ -135,7 +137,7 @@ export const sendPublicMessage = async (chatId, senderId, senderName, text) => {
   try {
     const messagesRef = collection(db, 'publicChats', chatId, 'messages');
     const chatRef = doc(db, 'publicChats', chatId);
-    
+
     // Add the message
     const messageDoc = await addDoc(messagesRef, {
       senderId,
@@ -144,13 +146,13 @@ export const sendPublicMessage = async (chatId, senderId, senderName, text) => {
       timestamp: serverTimestamp(),
       createdAt: new Date(),
     });
-    
+
     // Update chat with last message info
     await updateDoc(chatRef, {
       lastMessage: text,
       lastMessageTime: serverTimestamp(),
     });
-    
+
     return messageDoc.id;
   } catch (error) {
     console.error('Error sending public message:', error);
@@ -162,7 +164,7 @@ export const sendPublicMessage = async (chatId, senderId, senderName, text) => {
 export const subscribeToPublicMessages = (chatId, callback) => {
   const messagesRef = collection(db, 'publicChats', chatId, 'messages');
   const q = query(messagesRef, orderBy('timestamp', 'asc'));
-  
+
   return onSnapshot(q, (snapshot) => {
     const messages = [];
     snapshot.forEach((doc) => {
@@ -172,13 +174,15 @@ export const subscribeToPublicMessages = (chatId, callback) => {
         sender: data.senderName,
         senderId: data.senderId,
         text: data.text,
-        time: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        }) : new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
+        time: data.createdAt
+          ? new Date(data.createdAt.seconds * 1000).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : new Date().toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
         timestamp: data.timestamp,
       });
     });
@@ -195,7 +199,7 @@ export const subscribeToProximityChats = (userLocation, callback) => {
 
   const chatsRef = collection(db, 'publicChats');
   const q = query(chatsRef, where('type', '==', 'proximity'));
-  
+
   return onSnapshot(q, (snapshot) => {
     const nearbyChats = [];
     snapshot.forEach((doc) => {
@@ -210,7 +214,7 @@ export const subscribeToProximityChats = (userLocation, callback) => {
           longitude: chatData.centerLocation.longitude,
         }
       );
-      
+
       // Include chats within 5km radius
       if (distance <= PROXIMITY_RADIUS) {
         nearbyChats.push({
@@ -225,7 +229,7 @@ export const subscribeToProximityChats = (userLocation, callback) => {
         });
       }
     });
-    
+
     // Sort by distance
     nearbyChats.sort((a, b) => a.distance - b.distance);
     callback(nearbyChats);
