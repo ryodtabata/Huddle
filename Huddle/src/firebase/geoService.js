@@ -13,7 +13,7 @@ import {
   distanceBetween,
 } from 'geofire-common';
 
-const GEOHASH_PRECISION = 6; // Use the same precision as your query bounds
+const GEOHASH_PRECISION = 6; // Adjust precision as needed
 
 // Set or update user location with geohash
 export const setUserLocation = async (

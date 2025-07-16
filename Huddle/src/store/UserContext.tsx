@@ -6,7 +6,7 @@ import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { setUserLocation } from '../firebase/geoService';
 import * as Location from 'expo-location';
 
-// --- Define UserProfile type ---
+//this is where the user context is defined, should be changed along with privacy checkls in futre
 interface UserProfile {
   uid: string;
   email: string;
@@ -20,7 +20,6 @@ interface UserProfile {
   location?: any;
 }
 
-// --- Define UserContextType to match your context value ---
 interface UserContextType {
   user: User | null;
   userProfile: UserProfile | null;
@@ -28,7 +27,6 @@ interface UserContextType {
   refreshUserProfile: () => Promise<void>;
 }
 
-// --- Create context with correct type ---
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
@@ -36,7 +34,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Location update effect
   useEffect(() => {
     let intervalId: any;
 
