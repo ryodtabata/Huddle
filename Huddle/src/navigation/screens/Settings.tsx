@@ -1,6 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, Pressable, Alert } from 'react-native';
-import { Text } from '@react-navigation/elements';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Pressable,
+  Alert,
+  Text,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { signOut } from '../../firebase/authFunctions'; // Adjust the import path as needed
@@ -114,12 +120,6 @@ export function Settings() {
             onPress={() => handleSettingsPress('Notifications')}
           />
           <SettingsItem
-            icon="time-outline"
-            title="Time Spent"
-            subtitle="See your activity"
-            onPress={() => handleSettingsPress('Time Spent')}
-          />
-          <SettingsItem
             icon="location-outline"
             title="Location Services"
             subtitle="Manage location sharing"
@@ -134,27 +134,9 @@ export function Settings() {
             subtitle="Dark, light, auto"
             onPress={() => handleSettingsPress('Theme')}
           />
-          <SettingsItem
-            icon="language-outline"
-            title="Language"
-            subtitle="App language"
-            onPress={() => handleSettingsPress('Language')}
-          />
-          <SettingsItem
-            icon="text-outline"
-            title="Font Size"
-            subtitle="Adjust text size"
-            onPress={() => handleSettingsPress('Font Size')}
-          />
         </SettingsSection>
 
         <SettingsSection title="Support">
-          <SettingsItem
-            icon="help-circle-outline"
-            title="Help Center"
-            subtitle="FAQs and support articles"
-            onPress={() => handleSettingsPress('Help Center')}
-          />
           <SettingsItem
             icon="mail-outline"
             title="Contact Us"
@@ -173,21 +155,9 @@ export function Settings() {
             subtitle="Read our terms"
             onPress={() => handleSettingsPress('Terms of Service')}
           />
-          <SettingsItem
-            icon="shield-outline"
-            title="Privacy Policy"
-            subtitle="How we use your data"
-            onPress={() => handleSettingsPress('Privacy Policy')}
-          />
         </SettingsSection>
 
         <SettingsSection title="Account Actions">
-          <SettingsItem
-            icon="download-outline"
-            title="Download Your Data"
-            subtitle="Export your information"
-            onPress={() => handleSettingsPress('Download Your Data')}
-          />
           <SettingsItem
             icon="pause-outline"
             title="Deactivate Account"

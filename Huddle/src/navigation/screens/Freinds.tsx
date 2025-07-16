@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -6,18 +6,17 @@ import {
   FlatList,
   Pressable,
   Alert,
-} from "react-native";
-import { ListofPeople } from "../../components/MainPage/ListofPeople";
-import MockList from "../../components/MockList";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+} from 'react-native';
+import { ListofPeople } from '../../components/MainPage/ListofPeople';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export function Friends() {
   const navigation = useNavigation<any>();
 
   const handleMessage = (person: any) => {
     // TODO: Navigate to messages screen with this person
-    Alert.alert("Message", `Opening chat with ${person.name}...`);
+    Alert.alert('Message', `Opening chat with ${person.name}...`);
     // navigation.navigate('Messages', { person });
   };
 
@@ -40,11 +39,11 @@ export function Friends() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#181c24",
+    backgroundColor: '#181c24',
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingTop: 60,
     paddingHorizontal: 16,
     paddingBottom: 16,
@@ -55,7 +54,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: 'bold',
+    color: '#fff',
   },
 });
