@@ -11,6 +11,8 @@ will need to contact ryotabata for the config file, not included in git becuase 
 
 # what needs to be implemented still ... to do list if you will
 
+TO LOG OUT PRESS THE ACCOUNT INFO BUTTON IN SETTINGS-> NO OTHER SETTINGS BUTTONS ARE FUNTIONAL
+
 -google sign up/sign in does not work still
 -forget password is not implemented
 -i need to make a logo and neew colour sheme
@@ -24,11 +26,12 @@ tags
 privacy set up ios important
 ask permission for location
 
-need to implmenet the public chats page
-edit profile is buggy
+FIXED EDIT PROFILE!!
+but there is still a bug with bio being too long
+need to implement rules to limit characters for name, tags bio etc
 settigs has too many options i dont care about
 settings needs to be actually implemented
-need to set up the messaging/group chat services -PRIORITY
+friends list/addfriends/block/unadd/report all broken/not implemented need to do that
 
 BUGS:
 lots of viewing bugs depending if on phone or web, or i assume android.
@@ -37,4 +40,3 @@ TESTING:
 location stuff seems weird still
 radius decision---> for now max -> then make it editable
 decision about how often api calls should be made ? best way to do it with limited write/fetches
-
