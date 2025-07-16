@@ -15,40 +15,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { getUserFriends } from '../../firebase/friendsService';
 import { useUser } from '../../store/UserContext';
 
-// Mock friends data - in a real app this would come from your state/API
-const mockFriends = [
-  {
-    id: '1',
-    name: 'Alice Smith',
-    imageUrl: 'https://i.pravatar.cc/250?img=1',
-    hasActiveConvo: true, // This friend already has an active conversation
-  },
-  {
-    id: '2',
-    name: 'Bob Johnson',
-    imageUrl: 'https://i.pravatar.cc/250?img=2',
-    hasActiveConvo: false,
-  },
-  {
-    id: '3',
-    name: 'Carol Lee',
-    imageUrl: 'https://i.pravatar.cc/250?img=3',
-    hasActiveConvo: false,
-  },
-  {
-    id: '4',
-    name: 'David Wilson',
-    imageUrl: 'https://i.pravatar.cc/250?img=4',
-    hasActiveConvo: false,
-  },
-  {
-    id: '5',
-    name: 'Emma Davis',
-    imageUrl: 'https://i.pravatar.cc/250?img=5',
-    hasActiveConvo: true,
-  },
-];
-
 type Friend = {
   id: string;
   name: string;
@@ -169,7 +135,9 @@ export function NewMessageModal({
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                {loading ? 'Loading friends...' : 'No friends found. Add friends to start messaging!'}
+                {loading
+                  ? 'Loading friends...'
+                  : 'No friends found. Add friends to start messaging!'}
               </Text>
             </View>
           }

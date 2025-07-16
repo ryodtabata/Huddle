@@ -51,7 +51,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         location.coords.latitude,
         location.coords.longitude,
         {
-          displayName: user.displayName,
           email: user.email,
         }
       );

@@ -19,14 +19,14 @@ const EditProfileComponent = () => {
   const navigation = useNavigation<any>();
   const { user, userProfile, refreshUserProfile } = useUser();
 
-  // Initialize state with user data
+  //Initialize state with user data
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [hashtags, setHashtags] = useState('');
   const [hideAge, setHideAge] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get age from userProfile or default
+  //once user sets age cannot be changed, but i also dont think they get older lmao with time
   const lockedAge = userProfile?.age || 0;
 
   // Load user data when component mounts
@@ -38,7 +38,7 @@ const EditProfileComponent = () => {
       setHideAge(userProfile.hideAge || false);
     } else if (user) {
       // If no profile exists, use basic auth data
-      setName(user.displayName || user.email?.split('@')[0] || '');
+      setName(user.displayName || 'NOT');
     }
   }, [userProfile, user]);
 
@@ -158,7 +158,7 @@ const EditProfileComponent = () => {
       />
       {maxLength && (
         <Text style={styles.characterCount}>
-          {value.length}/{maxLength}
+          {(value || '').length}/{maxLength}
         </Text>
       )}
     </View>

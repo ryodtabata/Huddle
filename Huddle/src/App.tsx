@@ -16,7 +16,7 @@ const MyLightTheme = {
   ...NavigationDefaultTheme,
   colors: {
     ...NavigationDefaultTheme.colors,
-    background: '#f5f5f7', // Replace with your light theme color
+    background: '#f5f5f7', // Replace with actual light theme color.. change the gray
   },
 };
 
@@ -24,7 +24,7 @@ const MyDarkTheme = {
   ...NavigationDarkTheme,
   colors: {
     ...NavigationDarkTheme.colors,
-    background: '#121212', // Replace with your dark theme color
+    background: '#121212', // Replace with actual dark theme color
   },
 };
 
