@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,63 +10,31 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import {
-  subscribeToMessages,
-  sendMessage,
-  createConversation,
-} from '../../firebase/messageService';
-import { useUser } from '../../store/UserContext';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { subscribeToPublicMessages, sendPublicMessage } from "../../firebase/publicChatService";
+import { useUser } from "../../store/UserContext";
 
-const MessagesConvo = (props: any) => {
-  const { item, onClose, conversationId: propConversationId } = props;
-  const [input, setInput] = useState('');
+const PublicChatConvo = (props: any) => {
+  const { chat, onClose } = props;
+  const [input, setInput] = useState("");
   const [allMessages, setAllMessages] = useState<any[]>([]);
-  const [conversationId, setConversationId] = useState<string | null>(
-    propConversationId || null
-  );
   const [loading, setLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const insets = useSafeAreaInsets();
   const { user, userProfile } = useUser();
 
   useEffect(() => {
-    // Initialize conversation if needed
-    const initializeConversation = async () => {
-      if (!user || !userProfile || !item) return;
-
-      try {
-        if (!conversationId) {
-          // Create or get conversation
-          const newConversationId = await createConversation(
-            user.uid,
-            item.id || item.uid,
-            userProfile.displayName || user.email || 'Unknown',
-            item.name || item.displayName || 'Unknown'
-          );
-          setConversationId(newConversationId);
-        }
-      } catch (error) {
-        console.error('Error initializing conversation:', error);
-        Alert.alert('Error', 'Failed to initialize conversation');
-      }
-    };
-
-    initializeConversation();
-  }, [user, userProfile, item, conversationId]);
-
-  useEffect(() => {
-    if (!conversationId) return;
+    if (!chat?.id) return;
 
     // Subscribe to messages
-    const unsubscribe = subscribeToMessages(conversationId, (messages: any) => {
+    const unsubscribe = subscribeToPublicMessages(chat.id, (messages: any) => {
       setAllMessages(messages);
     });
 
     return () => unsubscribe();
-  }, [conversationId]);
+  }, [chat?.id]);
 
   useEffect(() => {
     if (flatListRef.current && allMessages.length > 0) {
@@ -75,41 +43,48 @@ const MessagesConvo = (props: any) => {
   }, [allMessages]);
 
   const handleSend = async () => {
-    if (input.trim() === '' || !conversationId || !user || !userProfile) return;
-
+    if (input.trim() === "" || !chat?.id || !user || !userProfile) return;
+    
     setLoading(true);
     try {
-      await sendMessage(
-        conversationId,
+      await sendPublicMessage(
+        chat.id,
         user.uid,
-        userProfile.displayName || user.email || 'Unknown',
+        userProfile.displayName || user.email || "Unknown",
         input.trim()
       );
-      setInput('');
+      setInput("");
     } catch (error) {
-      console.error('Error sending message:', error);
-      Alert.alert('Error', 'Failed to send message');
+      console.error("Error sending message:", error);
+      Alert.alert("Error", "Failed to send message");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!item) return null;
+  if (!chat) return null;
 
   return (
-    <Modal visible={!!item} onRequestClose={onClose}>
+    <Modal visible={!!chat} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <KeyboardAvoidingView
-          style={styles.iphoneContainer}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           {/* Header */}
           <View style={[styles.headerBar, { paddingTop: insets.top }]}>
             <Pressable style={styles.backButton} onPress={onClose}>
-              <Ionicons name="chevron-back" size={28} color="#007aff" />
+              <Ionicons name="chevron-back" size={28} color="#4fc3f7" />
             </Pressable>
-            <Text style={styles.headerText}>{item.name}</Text>
+            <View style={styles.headerInfo}>
+              <Text style={styles.headerText}>{chat.name}</Text>
+              <Text style={styles.headerSubtext}>
+                {chat.participantCount} people nearby
+              </Text>
+            </View>
+            <Ionicons name="location" size={24} color="#4fc3f7" />
           </View>
+
           {/* Messages */}
           <FlatList
             ref={flatListRef}
@@ -132,7 +107,7 @@ const MessagesConvo = (props: any) => {
                 <Text
                   style={[
                     styles.messageText,
-                    msg.senderId === user?.uid && { color: '#fff' },
+                    msg.senderId === user?.uid && { color: "#fff" },
                   ]}
                 >
                   {msg.text}
@@ -141,20 +116,31 @@ const MessagesConvo = (props: any) => {
               </View>
             )}
             contentContainerStyle={styles.messagesList}
+            ListEmptyComponent={
+              <View style={styles.emptyMessages}>
+                <Ionicons name="chatbubbles-outline" size={48} color="#666" />
+                <Text style={styles.emptyText}>
+                  No messages yet. Be the first to say hello!
+                </Text>
+              </View>
+            }
           />
+
           {/* Input */}
           <View style={styles.inputRow}>
             <TextInput
               style={styles.input}
               value={input}
               onChangeText={setInput}
-              placeholder="Message"
+              placeholder="Message everyone nearby..."
               placeholderTextColor="#888"
               onSubmitEditing={handleSend}
               returnKeyType="send"
+              multiline
+              maxLength={500}
             />
-            <Pressable
-              style={[styles.sendButton, loading && styles.sendButtonDisabled]}
+            <Pressable 
+              style={[styles.sendButton, loading && styles.sendButtonDisabled]} 
               onPress={handleSend}
               disabled={loading}
             >
@@ -170,92 +156,99 @@ const MessagesConvo = (props: any) => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: '#f5f5f7',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#181c24",
   },
-  iphoneContainer: {
-    width: '100%',
-    maxWidth: 480,
-    height: '100%',
-    backgroundColor: '#f5f5f7',
-    alignSelf: 'center',
-    // shadowColor: "#000",
-    // shadowOpacity: 0.12,
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowRadius: 8,
-    elevation: 6,
+  container: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#181c24",
     flex: 1,
   },
   headerBar: {
     height: 56,
-    backgroundColor: '#fff',
+    backgroundColor: "#2a2f3a",
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e5ea',
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderBottomColor: "#3a3f4a",
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 8,
   },
   backButton: {
     padding: 4,
     marginRight: 8,
   },
+  headerInfo: {
+    flex: 1,
+  },
   headerText: {
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 18,
-    color: '#222',
+    color: "#fff",
+  },
+  headerSubtext: {
+    fontSize: 12,
+    color: "#4fc3f7",
   },
   messagesList: {
     padding: 12,
     flexGrow: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   messageBubble: {
-    maxWidth: '75%',
+    maxWidth: "75%",
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 22,
     marginBottom: 8,
-    alignSelf: 'flex-start',
-    // shadowColor: "#000",
-    // shadowOpacity: 0.04,
-    // shadowOffset: { width: 0, height: 1 },
-    // shadowRadius: 2,
+    alignSelf: "flex-start",
   },
   myMessage: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#007aff',
+    alignSelf: "flex-end",
+    backgroundColor: "#4fc3f7",
     borderBottomRightRadius: 6,
   },
   otherMessage: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#e5e5ea',
+    alignSelf: "flex-start",
+    backgroundColor: "#2a2f3a",
     borderBottomLeftRadius: 6,
   },
   sender: {
     fontSize: 12,
-    fontWeight: 'bold',
-    color: '#007aff',
+    fontWeight: "bold",
+    color: "#4fc3f7",
     marginBottom: 2,
   },
   messageText: {
-    color: '#222',
+    color: "#fff",
     fontSize: 16,
+    lineHeight: 20,
   },
   time: {
     fontSize: 11,
-    color: '#888',
+    color: "#888",
     marginTop: 4,
-    textAlign: 'right',
-    alignSelf: 'flex-end',
+    textAlign: "right",
+    alignSelf: "flex-end",
+  },
+  emptyMessages: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 60,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 12,
   },
   inputRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: '#e5e5ea',
+    borderTopColor: "#3a3f4a",
     padding: 10,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    backgroundColor: "#2a2f3a",
+    alignItems: "flex-end",
   },
   input: {
     flex: 1,
@@ -263,22 +256,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#3a3f4a",
     fontSize: 16,
-    backgroundColor: '#f5f5f7',
+    backgroundColor: "#181c24",
     marginRight: 8,
-    color: '#222',
+    color: "#fff",
+    maxHeight: 100,
   },
   sendButton: {
-    backgroundColor: '#007aff',
+    backgroundColor: "#4fc3f7",
     borderRadius: 20,
     padding: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   sendButtonDisabled: {
     opacity: 0.5,
   },
 });
 
-export default MessagesConvo;
+export default PublicChatConvo;
