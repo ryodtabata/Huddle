@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,40 +8,43 @@ import {
   FlatList,
   Pressable,
   Image,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Ionicons from "@expo/vector-icons/Ionicons";
+  Alert,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { getUserFriends } from '../../firebase/friendsService';
+import { useUser } from '../../store/UserContext';
 
 // Mock friends data - in a real app this would come from your state/API
 const mockFriends = [
   {
-    id: "1",
-    name: "Alice Smith",
-    imageUrl: "https://i.pravatar.cc/250?img=1",
+    id: '1',
+    name: 'Alice Smith',
+    imageUrl: 'https://i.pravatar.cc/250?img=1',
     hasActiveConvo: true, // This friend already has an active conversation
   },
   {
-    id: "2",
-    name: "Bob Johnson",
-    imageUrl: "https://i.pravatar.cc/250?img=2",
+    id: '2',
+    name: 'Bob Johnson',
+    imageUrl: 'https://i.pravatar.cc/250?img=2',
     hasActiveConvo: false,
   },
   {
-    id: "3",
-    name: "Carol Lee",
-    imageUrl: "https://i.pravatar.cc/250?img=3",
+    id: '3',
+    name: 'Carol Lee',
+    imageUrl: 'https://i.pravatar.cc/250?img=3',
     hasActiveConvo: false,
   },
   {
-    id: "4",
-    name: "David Wilson",
-    imageUrl: "https://i.pravatar.cc/250?img=4",
+    id: '4',
+    name: 'David Wilson',
+    imageUrl: 'https://i.pravatar.cc/250?img=4',
     hasActiveConvo: false,
   },
   {
-    id: "5",
-    name: "Emma Davis",
-    imageUrl: "https://i.pravatar.cc/250?img=5",
+    id: '5',
+    name: 'Emma Davis',
+    imageUrl: 'https://i.pravatar.cc/250?img=5',
     hasActiveConvo: true,
   },
 ];
@@ -64,20 +67,52 @@ export function NewMessageModal({
   onClose,
   onSelectFriend,
 }: NewMessageModalProps) {
-  const [search, setSearch] = useState("");
-  const [filteredFriends, setFilteredFriends] = useState(mockFriends);
+  const { user } = useUser();
+  const [search, setSearch] = useState('');
+  const [users, setUsers] = useState<any[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const insets = useSafeAreaInsets();
 
+  // Load user's friends when modal opens
   useEffect(() => {
-    const filtered = mockFriends.filter((friend) =>
+    if (visible && user) {
+      loadUserFriends();
+    }
+  }, [visible, user]);
+
+  const loadUserFriends = async () => {
+    if (!user) return;
+
+    setLoading(true);
+    try {
+      const friends = await getUserFriends(user.uid);
+      setUsers(friends);
+      setFilteredUsers(friends);
+    } catch (error) {
+      console.error('Error loading friends:', error);
+      Alert.alert('Error', 'Failed to load friends');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter friends as user types
+  useEffect(() => {
+    if (search.trim() === '') {
+      setFilteredUsers(users);
+      return;
+    }
+
+    const filtered = users.filter((friend) =>
       friend.name.toLowerCase().includes(search.toLowerCase())
     );
-    setFilteredFriends(filtered);
-  }, [search]);
+    setFilteredUsers(filtered);
+  }, [search, users]);
 
-  const handleSelectFriend = (friend: Friend) => {
+  const handleSelectFriend = (friend: any) => {
     onSelectFriend(friend);
-    setSearch("");
+    setSearch('');
     onClose();
   };
 
@@ -94,7 +129,7 @@ export function NewMessageModal({
           <Pressable style={styles.backButton} onPress={onClose}>
             <Ionicons name="arrow-back" size={24} color="#4fc3f7" />
           </Pressable>
-          <Text style={styles.headerTitle}>New Message</Text>
+          <Text style={styles.headerTitle}>Message Friends</Text>
         </View>
 
         {/* Search Bar */}
@@ -108,34 +143,34 @@ export function NewMessageModal({
           />
         </View>
 
-        {/* Friends List */}
+        {/* Users List */}
         <FlatList
-          data={filteredFriends}
+          data={filteredUsers}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <Pressable
               style={styles.friendItem}
               onPress={() => handleSelectFriend(item)}
             >
-              <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarText}>
+                  {item.name ? item.name[0].toUpperCase() : '?'}
+                </Text>
+              </View>
               <View style={styles.friendInfo}>
                 <Text style={styles.friendName}>{item.name}</Text>
                 <Text style={styles.friendStatus}>
-                  {item.hasActiveConvo
-                    ? "Active conversation"
-                    : "Start new chat"}
+                  {item.bio || 'Start new chat'}
                 </Text>
               </View>
-              <Ionicons
-                name={item.hasActiveConvo ? "chatbubble" : "add-circle-outline"}
-                size={20}
-                color="#4fc3f7"
-              />
+              <Ionicons name="add-circle-outline" size={20} color="#4fc3f7" />
             </Pressable>
           )}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No friends found.</Text>
+              <Text style={styles.emptyText}>
+                {loading ? 'Loading friends...' : 'No friends found. Add friends to start messaging!'}
+              </Text>
             </View>
           }
           showsVerticalScrollIndicator={false}
@@ -148,15 +183,15 @@ export function NewMessageModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#181c24",
+    backgroundColor: '#181c24',
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#232a36",
+    borderBottomColor: '#232a36',
   },
   backButton: {
     marginRight: 16,
@@ -164,28 +199,28 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight: 'bold',
+    color: '#fff',
   },
   searchContainer: {
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   searchBar: {
-    backgroundColor: "#232a36",
+    backgroundColor: '#232a36',
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
   },
   friendItem: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#232a36",
+    borderBottomColor: '#232a36',
   },
   avatar: {
     width: 50,
@@ -193,29 +228,43 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 12,
     borderWidth: 2,
-    borderColor: "#4fc3f7",
+    borderColor: '#4fc3f7',
+  },
+  avatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#4fc3f7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  avatarText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 20,
   },
   friendInfo: {
     flex: 1,
   },
   friendName: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 2,
   },
   friendStatus: {
-    color: "#b0b0b0",
+    color: '#b0b0b0',
     fontSize: 14,
   },
   emptyContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingTop: 60,
   },
   emptyText: {
-    color: "#888",
+    color: '#888',
     fontSize: 16,
   },
 });
