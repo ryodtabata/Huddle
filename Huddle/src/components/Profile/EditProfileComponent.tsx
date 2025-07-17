@@ -74,7 +74,6 @@ const InputField = memo(
           numberOfLines={multiline ? 4 : 1}
           maxLength={maxLength}
           editable={!locked}
-          blurOnSubmit={false}
           textBreakStrategy="simple"
           keyboardType="default"
         />

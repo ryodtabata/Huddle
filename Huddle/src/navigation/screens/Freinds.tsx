@@ -15,7 +15,6 @@ export function Friends() {
   const navigation = useNavigation<any>();
 
   const handleMessage = (person: any) => {
-    // TODO: Navigate to messages screen with this person
     Alert.alert('Message', `Opening chat with ${person.name}...`);
     // navigation.navigate('Messages', { person });
   };

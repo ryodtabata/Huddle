@@ -63,7 +63,7 @@ export function NewMessageModal({
     }
   };
 
-  // Filter friends as user types
+  //Filter friends as user types
   useEffect(() => {
     if (search.trim() === '') {
       setFilteredUsers(users);

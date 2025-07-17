@@ -15,6 +15,7 @@ import {
 
 const GEOHASH_PRECISION = 6; // Adjust precision as needed
 
+//in future i do not want to show how many km away people are just nearby, but this is handy for debugging right now
 // Set or update user location with geohash
 export const setUserLocation = async (
   userId,
@@ -53,8 +54,8 @@ export const setUserLocation = async (
 export const getNearbyUsers = async (
   latitude,
   longitude,
-  radiusKm = 50,
-  excludeUserId = null
+  radiusKm = 10,
+  excludeUserId
 ) => {
   const center = [latitude, longitude];
   const bounds = geohashQueryBounds(center, radiusKm);
@@ -106,8 +107,6 @@ export const getNearbyUsers = async (
       }
     }
   }
-
-  // Remove duplicates (can happen if a user is in multiple bounds)
   const uniqueUsers = Array.from(
     new Map(matchingDocs.map((u) => [u.uid, u])).values()
   );

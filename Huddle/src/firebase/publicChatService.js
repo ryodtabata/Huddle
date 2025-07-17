@@ -15,13 +15,13 @@ import {
 import { db } from './configFirebase';
 import { getDistance } from 'geolib';
 
-// TODO: FOR DEVELOPMENT ONLY - Set to large radius to include all users
-// In production, change back to smaller radius
+//THIS PAGE IS MAJOR WIP
+
 const PROXIMITY_RADIUS = 20000000; // 20,000km in meters (basically global for dev)
 
 // Generate a location-based chat room ID
 const generateLocationChatId = (latitude, longitude) => {
-  // Round to ~1km precision for grouping nearby users
+  //rounding to 1km
   const roundedLat = Math.round(latitude * 100) / 100;
   const roundedLng = Math.round(longitude * 100) / 100;
   return `location_${roundedLat}_${roundedLng}`;
@@ -160,7 +160,7 @@ export const sendPublicMessage = async (chatId, senderId, senderName, text) => {
   }
 };
 
-// Listen to messages in a public chat
+//Listen to messages in a public chat, this is going to cause a looooooooot of api calls when we start to sclae up, so will need to optimize later
 export const subscribeToPublicMessages = (chatId, callback) => {
   const messagesRef = collection(db, 'publicChats', chatId, 'messages');
   const q = query(messagesRef, orderBy('timestamp', 'asc'));
@@ -214,8 +214,6 @@ export const subscribeToProximityChats = (userLocation, callback) => {
           longitude: chatData.centerLocation.longitude,
         }
       );
-
-      // Include chats within 5km radius
       if (distance <= PROXIMITY_RADIUS) {
         nearbyChats.push({
           id: doc.id,

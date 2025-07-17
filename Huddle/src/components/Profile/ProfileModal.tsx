@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, StyleSheet, Modal, Pressable, Alert } from "react-native";
-import { ProfileCard } from "./ProfileCard";
+import React from 'react';
+import { View, Text, StyleSheet, Modal, Pressable, Alert } from 'react-native';
+import { ProfileCard } from './ProfileCard';
 
 type Person = {
   id: string;
@@ -21,6 +21,7 @@ interface ProfileModalProps {
   onMessage?: (person: Person) => void;
 }
 
+//need to make block and report and add friend fucntionality
 export function ProfileModal({
   visible,
   person,
@@ -30,23 +31,23 @@ export function ProfileModal({
 }: ProfileModalProps) {
   const handleAddFriend = () => {
     if (person) {
-      const action = isFriend ? "Remove Friend" : "Add Friend";
+      const action = isFriend ? 'Remove Friend' : 'Add Friend';
       const message = isFriend
         ? `Remove ${person.name} from your friends?`
         : `Send friend request to ${person.name}?`;
-      const confirmText = isFriend ? "Remove" : "Send Request";
+      const confirmText = isFriend ? 'Remove' : 'Send Request';
       const successMessage = isFriend
         ? `${person.name} has been removed from your friends.`
         : `Friend request sent to ${person.name}!`;
 
       Alert.alert(action, message, [
-        { text: "Cancel", style: "cancel" },
+        { text: 'Cancel', style: 'cancel' },
         {
           text: confirmText,
-          style: isFriend ? "destructive" : "default",
+          style: isFriend ? 'destructive' : 'default',
           onPress: () => {
             // TODO: Implement add/remove friend functionality
-            Alert.alert("Success", successMessage);
+            Alert.alert('Success', successMessage);
             onClose();
           },
         },
@@ -64,16 +65,16 @@ export function ProfileModal({
   const handleBlock = () => {
     if (person) {
       Alert.alert(
-        "Block User",
+        'Block User',
         `Are you sure you want to block ${person.name}? They won't be able to contact you and you won't see their profile anymore.`,
         [
-          { text: "Cancel", style: "cancel" },
+          { text: 'Cancel', style: 'cancel' },
           {
-            text: "Block",
-            style: "destructive",
+            text: 'Block',
+            style: 'destructive',
             onPress: () => {
               // TODO: Implement block functionality
-              Alert.alert("Blocked", `${person.name} has been blocked.`);
+              Alert.alert('Blocked', `${person.name} has been blocked.`);
               onClose();
             },
           },
@@ -85,17 +86,17 @@ export function ProfileModal({
   const handleReport = () => {
     if (person) {
       Alert.alert(
-        "Report User",
+        'Report User',
         `Report ${person.name} for inappropriate behavior?`,
         [
-          { text: "Cancel", style: "cancel" },
+          { text: 'Cancel', style: 'cancel' },
           {
-            text: "Report",
-            style: "destructive",
+            text: 'Report',
+            style: 'destructive',
             onPress: () => {
               // TODO: Implement report functionality
               Alert.alert(
-                "Reported",
+                'Reported',
                 `${person.name} has been reported. Thank you for keeping our community safe.`
               );
               onClose();
@@ -151,7 +152,7 @@ export function ProfileModal({
                     : styles.addFriendButtonText
                 }
               >
-                {isFriend ? "Remove Friend" : "Add Friend"}
+                {isFriend ? 'Remove Friend' : 'Add Friend'}
               </Text>
             </Pressable>
 
@@ -184,18 +185,18 @@ export function ProfileModal({
 const styles = StyleSheet.create({
   modalBackground: {
     flex: 1,
-    backgroundColor: "rgba(24,28,36,0.92)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(24,28,36,0.92)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContent: {
-    width: "94%",
-    backgroundColor: "transparent",
+    width: '94%',
+    backgroundColor: 'transparent',
     borderRadius: 20,
-    alignItems: "center",
+    alignItems: 'center',
   },
   buttonContainer: {
-    width: "100%",
+    width: '100%',
     paddingHorizontal: 20,
     marginTop: 20,
     gap: 12,
@@ -204,67 +205,67 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 25,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   addFriendButton: {
-    backgroundColor: "#4fc3f7",
+    backgroundColor: '#4fc3f7',
   },
   addFriendButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
     fontSize: 16,
   },
   messageButton: {
-    backgroundColor: "#4fc3f7",
+    backgroundColor: '#4fc3f7',
   },
   messageButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
     fontSize: 16,
   },
   removeFriendButton: {
-    backgroundColor: "#ff6b6b",
+    backgroundColor: '#ff6b6b',
   },
   removeFriendButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
     fontSize: 16,
   },
   secondaryButtonsRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
   },
   blockButton: {
     flex: 1,
-    backgroundColor: "#ff6b6b",
+    backgroundColor: '#ff6b6b',
   },
   blockButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: '#fff',
+    fontWeight: '600',
     fontSize: 14,
   },
   reportButton: {
     flex: 1,
-    backgroundColor: "#ff8c42",
+    backgroundColor: '#ff8c42',
   },
   reportButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: '#fff',
+    fontWeight: '600',
     fontSize: 14,
   },
   closeButton: {
     marginTop: 18,
-    backgroundColor: "#232a36",
+    backgroundColor: '#232a36',
     paddingVertical: 10,
     paddingHorizontal: 32,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#4fc3f7",
+    borderColor: '#4fc3f7',
   },
   closeButtonText: {
-    color: "#4fc3f7",
-    fontWeight: "bold",
+    color: '#4fc3f7',
+    fontWeight: 'bold',
     fontSize: 16,
   },
 });

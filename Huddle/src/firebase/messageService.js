@@ -16,6 +16,8 @@ import {
 import { db } from './configFirebase';
 import { areUsersFriends } from './friendsService';
 
+//not sure if this works yet
+
 // Create or get a conversation between two users (only if they are friends)
 export const createConversation = async (
   user1Id,
@@ -24,7 +26,7 @@ export const createConversation = async (
   user2Name
 ) => {
   try {
-    // Check if users are friends before creating conversation
+    //Check if users are friends before creating conversation
     const areFriends = await areUsersFriends(user1Id, user2Id);
     if (!areFriends) {
       throw new Error('You can only message people in your friends list');

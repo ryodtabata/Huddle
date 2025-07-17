@@ -9,11 +9,6 @@ type NavigationProp = {
   navigate: (screen: string) => void;
 };
 
-// profile screen component
-// this will be the profile screen where users can see their profile and edit it
-// to do: add functionality to edit profile, view friends, and settings
-// choose a different colour maybe,,, lime ghreen?
-
 export function Profile() {
   const navigation = useNavigation<any>();
   const { user, userProfile, loading } = useUser();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { setUserLocation, getNearbyUsers } from '../../firebase/geoService';
+import { getNearbyUsers } from '../../firebase/geoService';
 import {
   View,
   Text,
@@ -39,7 +39,6 @@ export function ListofPeople({
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Replace these with real user location in production
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
@@ -60,7 +59,8 @@ export function ListofPeople({
         const users = await getNearbyUsers(
           userProfile.location.latitude,
           userProfile.location.longitude,
-          500
+          10000000, //maxing this out right now for dev reasons
+          userProfile.uid // <-- Pass the actual user ID, not true/null
         );
         const mapped = users.map((u: any) => ({
           id: u.uid,
@@ -81,7 +81,7 @@ export function ListofPeople({
     };
 
     fetchPeople();
-    intervalId = setInterval(fetchPeople, 30000); // 30 seconds
+    intervalId = setInterval(fetchPeople, 300000); // changing how often we fetch users to every 5 minutes
 
     return () => clearInterval(intervalId);
   }, [userProfile?.location?.latitude, userProfile?.location?.longitude]);

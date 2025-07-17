@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { signOut } from '../../firebase/authFunctions'; // Adjust the import path as needed
+import { signOut } from '../../firebase/authFunctions';
 
 export function Settings() {
   const navigation = useNavigation<any>();

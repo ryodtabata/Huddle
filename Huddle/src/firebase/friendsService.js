@@ -15,8 +15,15 @@ import {
 } from 'firebase/firestore';
 import { db } from './configFirebase';
 
+//need to go and fix this
+
 // Send friend request
-export const sendFriendRequest = async (fromUserId, toUserId, fromUserName, toUserName) => {
+export const sendFriendRequest = async (
+  fromUserId,
+  toUserId,
+  fromUserName,
+  toUserName
+) => {
   try {
     const requestRef = collection(db, 'friendRequests');
     await addDoc(requestRef, {
@@ -46,11 +53,11 @@ export const acceptFriendRequest = async (requestId, fromUserId, toUserId) => {
     // Add to both users' friends lists
     const user1Ref = doc(db, 'users', fromUserId);
     const user2Ref = doc(db, 'users', toUserId);
-    
+
     await updateDoc(user1Ref, {
       friends: arrayUnion(toUserId),
     });
-    
+
     await updateDoc(user2Ref, {
       friends: arrayUnion(fromUserId),
     });
@@ -67,7 +74,7 @@ export const getUserFriends = async (userId) => {
     if (userDoc.exists()) {
       const userData = userDoc.data();
       const friendIds = userData.friends || [];
-      
+
       // Get friend profiles
       const friends = [];
       for (const friendId of friendIds) {
@@ -85,7 +92,7 @@ export const getUserFriends = async (userId) => {
           });
         }
       }
-      
+
       return friends;
     }
     return [];
@@ -120,10 +127,10 @@ export const getPendingFriendRequests = async (userId) => {
       where('toUserId', '==', userId),
       where('status', '==', 'pending')
     );
-    
+
     const snapshot = await getDocs(q);
     const requests = [];
-    
+
     snapshot.forEach((doc) => {
       const data = doc.data();
       requests.push({
@@ -133,7 +140,7 @@ export const getPendingFriendRequests = async (userId) => {
         createdAt: data.createdAt,
       });
     });
-    
+
     return requests;
   } catch (error) {
     console.error('Error getting friend requests:', error);

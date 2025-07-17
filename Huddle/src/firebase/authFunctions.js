@@ -5,6 +5,8 @@ import {
 } from 'firebase/auth';
 import { auth } from './configFirebase';
 
+//need to implement google sign in
+
 export const signUpWithEmail = async (email, password) => {
   console.log('signUpWithEmail called with:', email, password);
   try {

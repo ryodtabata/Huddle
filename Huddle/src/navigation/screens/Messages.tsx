@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import ListOfMessages from '../../components/Messages/ListOfMessages';
 
-//to do make a new message component that opens a modal with a form to create a new message
-// Mock data for conversations
+//idk do we really need this.. i guess so, maybe a fcuntion that retrives the messages for user uid
 
 export function Messages() {
   // need to add the messages list componenet
