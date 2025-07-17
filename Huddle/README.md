@@ -40,3 +40,8 @@ TESTING:
 location stuff seems weird still
 radius decision---> for now max -> then make it editable
 decision about how often api calls should be made ? best way to do it with limited write/fetches
+
+NOTE:
+ADD TO FIREBASECONFIG
+import { getStorage } from 'firebase/storage';
+export const storage = getStorage(app);
