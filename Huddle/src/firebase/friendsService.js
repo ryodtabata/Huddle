@@ -147,3 +147,40 @@ export const getPendingFriendRequests = async (userId) => {
     throw error;
   }
 };
+
+// Remove friend
+export const removeFriend = async (userId1, userId2) => {
+  try {
+    // Remove from both users' friends arrays
+    const user1Ref = doc(db, 'users', userId1);
+    const user2Ref = doc(db, 'users', userId2);
+
+    await updateDoc(user1Ref, {
+      friends: arrayRemove(userId2),
+    });
+
+    await updateDoc(user2Ref, {
+      friends: arrayRemove(userId1),
+    });
+
+    console.log('Friend removed successfully');
+  } catch (error) {
+    console.error('Error removing friend:', error);
+    throw error;
+  }
+};
+
+// Decline friend request
+export const declineFriendRequest = async (requestId) => {
+  try {
+    const requestRef = doc(db, 'friendRequests', requestId);
+    await updateDoc(requestRef, {
+      status: 'declined',
+      declinedAt: serverTimestamp(),
+    });
+    console.log('Friend request declined successfully');
+  } catch (error) {
+    console.error('Error declining friend request:', error);
+    throw error;
+  }
+};
