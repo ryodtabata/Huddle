@@ -18,7 +18,6 @@ export function FriendsList({ onMessage }: FriendsListProps) {
         setLoading(false);
         return;
       }
-
       setLoading(true);
       try {
         const friendsData = await getUserFriends(user.uid);

@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable, Alert } from 'react-native';
 import { ProfileCard } from './ProfileCard';
+import { ConfirmationModal } from '../ConfirmationModal';
+import {
+  sendFriendRequest,
+  removeFriend,
+  areUsersFriends,
+} from '../../firebase/friendsService';
+import { useUser } from '../../store/UserContext';
 
 type Person = {
   id: string;
@@ -29,30 +36,109 @@ export function ProfileModal({
   isFriend = false,
   onMessage,
 }: ProfileModalProps) {
-  const handleAddFriend = () => {
-    if (person) {
-      const action = isFriend ? 'Remove Friend' : 'Add Friend';
-      const message = isFriend
-        ? `Remove ${person.name} from your friends?`
-        : `Send friend request to ${person.name}?`;
-      const confirmText = isFriend ? 'Remove' : 'Send Request';
-      const successMessage = isFriend
-        ? `${person.name} has been removed from your friends.`
-        : `Friend request sent to ${person.name}!`;
+  const { user, userProfile } = useUser();
+  const [isActuallyFriend, setIsActuallyFriend] = useState(isFriend);
+  const [checkingFriendship, setCheckingFriendship] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<{
+    title: string;
+    message: string;
+    confirmText: string;
+    isDestructive: boolean;
+  } | null>(null);
 
-      Alert.alert(action, message, [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: confirmText,
-          style: isFriend ? 'destructive' : 'default',
-          onPress: () => {
-            // TODO: Implement add/remove friend functionality
-            Alert.alert('Success', successMessage);
-            onClose();
-          },
-        },
-      ]);
+  // Check if users are actually friends when modal opens
+  useEffect(() => {
+    const checkFriendshipStatus = async () => {
+      if (!person || !user?.uid || !visible) return;
+
+      setCheckingFriendship(true);
+      try {
+        const friendshipStatus = await areUsersFriends(user.uid, person.id);
+        setIsActuallyFriend(friendshipStatus);
+      } catch (error) {
+        console.error('Error checking friendship status:', error);
+        setIsActuallyFriend(isFriend); // Fallback to prop value
+      } finally {
+        setCheckingFriendship(false);
+      }
+    };
+
+    checkFriendshipStatus();
+  }, [visible, person, user?.uid]);
+
+  const handleAddFriend = async () => {
+    console.log('=== HANDLE ADD FRIEND START ===');
+    console.log('Handling add friend for:', person?.name);
+    console.log('isActuallyFriend:', isActuallyFriend);
+
+    if (!person || !user) {
+      console.log('EARLY RETURN: Missing person or user');
+      return;
     }
+
+    const title = isActuallyFriend ? 'Remove Friend' : 'Add Friend';
+    const message = isActuallyFriend
+      ? `Remove ${person.name} from your friends?`
+      : `Send friend request to ${person.name}?`;
+    const confirmText = isActuallyFriend ? 'Remove' : 'Send Request';
+
+    console.log('Setting up confirmation modal with:', {
+      title,
+      message,
+      confirmText,
+    });
+
+    setConfirmationData({
+      title,
+      message,
+      confirmText,
+      isDestructive: isActuallyFriend,
+    });
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmAction = async () => {
+    console.log('User confirmed action');
+    setShowConfirmation(false);
+
+    if (!person || !user) return;
+
+    try {
+      if (isActuallyFriend) {
+        // Remove friend
+        console.log('Removing friend:', person.name);
+        await removeFriend(user.uid, person.id);
+        setIsActuallyFriend(false); // Update local state to show "Add Friend"
+        Alert.alert(
+          'Success',
+          `${person.name} has been removed from your friends.`
+        );
+      } else {
+        // Send friend request
+        console.log('About to send friend request to:', person.name);
+
+        await sendFriendRequest(
+          user.uid,
+          person.id,
+          userProfile?.displayName || user.displayName || 'Unknown',
+          person.name
+        );
+
+        console.log('Friend request sent successfully');
+        Alert.alert('Success', `Friend request sent to ${person.name}!`);
+      }
+      // Don't close modal automatically - let user see the state change
+    } catch (error) {
+      console.log('Error with friend action:', error);
+      Alert.alert('Error', 'Failed to complete action. Please try again.');
+    }
+  };
+
+  const handleCancelAction = () => {
+    console.log('User cancelled action');
+    setShowConfirmation(false);
+    setConfirmationData(null);
   };
 
   const handleMessage = () => {
@@ -108,77 +194,101 @@ export function ProfileModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContent}>
-          {person && (
-            <ProfileCard
-              name={person.name}
-              age={person.age}
-              bio={person.bio}
-              distance={person.distance}
-              imageUrl={person.imageUrl}
-              verified={person.verified}
-              tags={person.tags}
-            />
-          )}
-
-          <View style={styles.buttonContainer}>
-            {isFriend && onMessage && (
-              <Pressable
-                style={[styles.actionButton, styles.messageButton]}
-                onPress={handleMessage}
-              >
-                <Text style={styles.messageButtonText}>Message</Text>
-              </Pressable>
+    <>
+      <Modal
+        visible={visible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={onClose}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            {person && (
+              <ProfileCard
+                name={person.name}
+                age={person.age}
+                bio={person.bio}
+                distance={person.distance}
+                imageUrl={person.imageUrl}
+                verified={person.verified}
+                tags={person.tags}
+              />
             )}
 
-            <Pressable
-              style={[
-                styles.actionButton,
-                isFriend ? styles.removeFriendButton : styles.addFriendButton,
-              ]}
-              onPress={handleAddFriend}
-            >
-              <Text
-                style={
-                  isFriend
-                    ? styles.removeFriendButtonText
-                    : styles.addFriendButtonText
-                }
-              >
-                {isFriend ? 'Remove Friend' : 'Add Friend'}
-              </Text>
-            </Pressable>
-
-            <View style={styles.secondaryButtonsRow}>
-              <Pressable
-                style={[styles.actionButton, styles.blockButton]}
-                onPress={handleBlock}
-              >
-                <Text style={styles.blockButtonText}>Block</Text>
-              </Pressable>
+            <View style={styles.buttonContainer}>
+              {isActuallyFriend && onMessage && (
+                <Pressable
+                  style={[styles.actionButton, styles.messageButton]}
+                  onPress={handleMessage}
+                >
+                  <Text style={styles.messageButtonText}>Message</Text>
+                </Pressable>
+              )}
 
               <Pressable
-                style={[styles.actionButton, styles.reportButton]}
-                onPress={handleReport}
+                style={[
+                  styles.actionButton,
+                  isActuallyFriend
+                    ? styles.removeFriendButton
+                    : styles.addFriendButton,
+                  checkingFriendship && styles.disabledButton,
+                ]}
+                onPress={handleAddFriend}
+                disabled={checkingFriendship}
               >
-                <Text style={styles.reportButtonText}>Report</Text>
+                <Text
+                  style={
+                    isActuallyFriend
+                      ? styles.removeFriendButtonText
+                      : styles.addFriendButtonText
+                  }
+                >
+                  {checkingFriendship
+                    ? 'Loading...'
+                    : isActuallyFriend
+                    ? 'Remove Friend'
+                    : 'Add Friend'}
+                </Text>
               </Pressable>
+
+              <View style={styles.secondaryButtonsRow}>
+                <Pressable
+                  style={[styles.actionButton, styles.blockButton]}
+                  onPress={handleBlock}
+                >
+                  <Text style={styles.blockButtonText}>Block</Text>
+                </Pressable>
+
+                <Pressable
+                  style={[styles.actionButton, styles.reportButton]}
+                  onPress={handleReport}
+                >
+                  <Text style={styles.reportButtonText}>Report</Text>
+                </Pressable>
+              </View>
             </View>
-          </View>
 
-          <Pressable style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Close</Text>
-          </Pressable>
+            <Pressable style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+
+      {confirmationData && (
+        <ConfirmationModal
+          visible={showConfirmation}
+          title={confirmationData.title}
+          message={confirmationData.message}
+          confirmText={confirmationData.confirmText}
+          confirmStyle={
+            confirmationData.isDestructive ? 'destructive' : 'default'
+          }
+          onConfirm={handleConfirmAction}
+          onCancel={handleCancelAction}
+        />
+      )}
+    </>
   );
 }
 
@@ -231,6 +341,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   secondaryButtonsRow: {
     flexDirection: 'row',
