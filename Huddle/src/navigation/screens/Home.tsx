@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
-import { ListofPeople } from '../../components/MainPage/ListofPeople';
+import { NearbyPeople } from '../../components/MainPage/NearbyPeople';
 import PuclicChatsPage from '../../components/MainPage/PublicChatspage';
 import { useUser } from '../../store/UserContext';
 
@@ -37,7 +37,7 @@ export function Home() {
         ))}
       </View>
       <View style={styles.content}>
-        {activeTab === 'nearby' ? <ListofPeople /> : <PuclicChatsPage />}
+        {activeTab === 'nearby' ? <NearbyPeople /> : <PuclicChatsPage />}
       </View>
     </View>
   );

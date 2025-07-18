@@ -1,20 +1,15 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Pressable,
-  Alert,
-} from 'react-native';
-import { ListofPeople } from '../../components/MainPage/ListofPeople';
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { FriendsList } from '../../components/Friends/FriendsList';
+import { Person } from '../../components/MainPage/PeopleList';
 
 export function Friends() {
   const navigation = useNavigation<any>();
 
-  const handleMessage = (person: any) => {
+  const handleMessage = (person: Person) => {
     Alert.alert('Message', `Opening chat with ${person.name}...`);
     // navigation.navigate('Messages', { person });
   };
@@ -28,9 +23,10 @@ export function Friends() {
         >
           <Ionicons name="arrow-back" size={24} color="#4fc3f7" />
         </Pressable>
-        <Text style={styles.title}>Friends List</Text>
+        <Text style={styles.title}>Friends</Text>
       </View>
-      <ListofPeople showAsFriends={true} onMessage={handleMessage} />
+
+      <FriendsList onMessage={handleMessage} />
     </View>
   );
 }
@@ -46,6 +42,8 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: 16,
     paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#232a36',
   },
   backButton: {
     marginRight: 16,
