@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#181c24',
+    // backgroundColor: '#181c24',
   },
   loadingContainer: {
     justifyContent: 'center',

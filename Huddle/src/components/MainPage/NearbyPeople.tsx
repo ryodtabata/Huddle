@@ -16,10 +16,7 @@ export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
     let intervalId: NodeJS.Timeout;
 
     const fetchNearbyPeople = async () => {
-      console.log('Fetching nearby users... with location:', {
-        latitude: userProfile?.location?.latitude,
-        longitude: userProfile?.location?.longitude,
-      });
+      console.log('Fetching nearby users... with location:');
 
       if (
         !userProfile?.location?.latitude ||
@@ -44,11 +41,10 @@ export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
           age: u.age || 0,
           bio: u.bio || '',
           distance: u.distance ? `${u.distance.toFixed(1)} km` : '',
-          imageUrl: u.profileImage || 'https://i.pravatar.cc/150?u=' + u.uid,
+          imageUrl: u.profileImage || null,
           verified: u.verified || false,
           tags: u.tags || [],
         }));
-
         setPeople(mapped);
         console.log('Fetched people:', mapped);
       } catch (e) {

@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#232a36',
+    // backgroundColor: '#232a36',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#4a5568',
+    // backgroundColor: '#4a5568',
   },
   requestDetails: {
     flex: 1,
