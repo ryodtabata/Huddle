@@ -80,7 +80,7 @@ export function PeopleList({
             <Pressable
               style={({ pressed }) => [
                 styles.personItem,
-                pressed && { backgroundColor: '#263043' },
+                // pressed && { : 'backgroundColor#263043' },
               ]}
               onPress={() => setSelectedPerson(item)}
             >
@@ -117,7 +117,7 @@ export function PeopleList({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181c24',
+    // backgroundColor: '#181c24',
     padding: 16,
   },
   searchBar: {

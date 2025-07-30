@@ -10,12 +10,14 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { signOut } from '../../firebase/authFunctions';
+import { useTheme } from '@react-navigation/native';
 
 export function Settings() {
   const navigation = useNavigation<any>();
   const handleSettingsPress = (setting: string) => {
     Alert.alert(setting, `${setting} functionality coming soon!`);
   };
+  const { colors } = useTheme();
 
   const SettingsItem = ({
     icon,
@@ -30,23 +32,21 @@ export function Settings() {
     onPress: () => void;
     showArrow?: boolean;
   }) => (
-    <Pressable
-      style={({ pressed }) => [
-        styles.settingsItem,
-        { backgroundColor: pressed ? '#232a36' : 'transparent' },
-      ]}
-      onPress={onPress}
-    >
+    <Pressable style={styles.settingsItem} onPress={onPress}>
       <View style={styles.settingsItemLeft}>
-        <Ionicons name={icon as any} size={24} color="#4fc3f7" />
+        <Ionicons name={icon as any} size={24} color={(colors as any).accent} />
         <View style={styles.settingsItemText}>
-          <Text style={styles.settingsItemTitle}>{title}</Text>
+          <Text style={[styles.settingsItemTitle, { color: colors.text }]}>
+            {title}
+          </Text>
           {subtitle && (
             <Text style={styles.settingsItemSubtitle}>{subtitle}</Text>
           )}
         </View>
       </View>
-      {showArrow && <Ionicons name="chevron-forward" size={20} color="#666" />}
+      {showArrow && (
+        <Ionicons name="chevron-forward" size={20} color={colors.text} />
+      )}
     </Pressable>
   );
 
@@ -57,20 +57,26 @@ export function Settings() {
     title: string;
     children: React.ReactNode;
   }) => (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <View style={styles.sectionContent}>{children}</View>
+    <View style={[styles.section, { backgroundColor: colors.background }]}>
+      <Text style={[styles.sectionTitle, { color: (colors as any).accent }]}>
+        {title}
+      </Text>
+      <View
+        style={[styles.sectionContent, { backgroundColor: colors.background }]}
+      >
+        {children}
+      </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#4fc3f7" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
         <Text style={styles.headerTitle}>Settings</Text>
       </View>
@@ -79,7 +85,7 @@ export function Settings() {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        <SettingsSection title="Account">
+        <SettingsSection title="General Settings">
           <SettingsItem
             icon="person-outline"
             title="Account Information"
@@ -99,85 +105,10 @@ export function Settings() {
             onPress={() => handleSettingsPress('Password & Security')}
           />
           <SettingsItem
-            icon="checkmark-circle-outline"
-            title="Request Verification"
-            subtitle="Get verified badge"
-            onPress={() => handleSettingsPress('Request Verification')}
-          />
-        </SettingsSection>
-
-        <SettingsSection title="Privacy & Safety">
-          <SettingsItem
-            icon="eye-off-outline"
-            title="Blocked Accounts"
-            subtitle="Manage blocked users"
-            onPress={() => handleSettingsPress('Blocked Accounts')}
-          />
-          <SettingsItem
-            icon="notifications-outline"
-            title="Notifications"
-            subtitle="Push, email, SMS"
-            onPress={() => handleSettingsPress('Notifications')}
-          />
-          <SettingsItem
-            icon="location-outline"
-            title="Location Services"
-            subtitle="Manage location sharing"
-            onPress={() => handleSettingsPress('Location Services')}
-          />
-        </SettingsSection>
-
-        <SettingsSection title="Content & Display">
-          <SettingsItem
-            icon="moon-outline"
-            title="Theme"
-            subtitle="Dark, light, auto"
-            onPress={() => handleSettingsPress('Theme')}
-          />
-        </SettingsSection>
-
-        <SettingsSection title="Support">
-          <SettingsItem
-            icon="mail-outline"
-            title="Contact Us"
-            subtitle="Get help from our team"
-            onPress={() => handleSettingsPress('Contact Us')}
-          />
-          <SettingsItem
             icon="flag-outline"
             title="Report a Problem"
             subtitle="Report bugs or issues"
             onPress={() => handleSettingsPress('Report a Problem')}
-          />
-          <SettingsItem
-            icon="document-text-outline"
-            title="Terms of Service"
-            subtitle="Read our terms"
-            onPress={() => handleSettingsPress('Terms of Service')}
-          />
-        </SettingsSection>
-
-        <SettingsSection title="Account Actions">
-          <SettingsItem
-            icon="pause-outline"
-            title="Deactivate Account"
-            subtitle="Temporarily disable account"
-            onPress={() => handleSettingsPress('Deactivate Account')}
-          />
-          <SettingsItem
-            icon="trash-outline"
-            title="Delete Account"
-            subtitle="Permanently delete account"
-            onPress={() =>
-              Alert.alert(
-                'Delete Account',
-                'Are you sure you want to permanently delete your account? This action cannot be undone.',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  { text: 'Delete', style: 'destructive' },
-                ]
-              )
-            }
           />
         </SettingsSection>
 
@@ -193,7 +124,6 @@ export function Settings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181c24',
   },
   header: {
     flexDirection: 'row',
@@ -211,7 +141,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#fff',
   },
   scrollView: {
     flex: 1,
@@ -223,13 +152,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4fc3f7',
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   sectionContent: {
-    backgroundColor: '#232a36',
     borderRadius: 12,
     overflow: 'hidden',
   },
@@ -254,7 +181,6 @@ const styles = StyleSheet.create({
   settingsItemTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#fff',
     marginBottom: 2,
   },
   settingsItemSubtitle: {
@@ -268,7 +194,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#666',
     marginBottom: 4,
   },
   row: {
