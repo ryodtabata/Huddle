@@ -55,9 +55,9 @@ const styles = StyleSheet.create({
   },
   tabRow: {
     flexDirection: 'row',
-    marginBottom: 24,
+    marginTop: 32, // <-- Add this line
+
     borderRadius: 24,
-    padding: 4,
   },
   tabButton: {
     paddingVertical: 10,
@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+    marginTop: 0,
   },
   contentText: {
     color: '#fff',

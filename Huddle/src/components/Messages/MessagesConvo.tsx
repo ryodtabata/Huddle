@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -19,6 +20,9 @@ import {
   createConversation,
 } from '../../firebase/messageService';
 import { useUser } from '../../store/UserContext';
+import { useTheme } from '@react-navigation/native';
+
+const screenWidth = Dimensions.get('window').width;
 
 const MessagesConvo = (props: any) => {
   const { item, onClose, conversationId: propConversationId } = props;
@@ -31,15 +35,13 @@ const MessagesConvo = (props: any) => {
   const flatListRef = useRef<FlatList>(null);
   const insets = useSafeAreaInsets();
   const { user, userProfile } = useUser();
+  const { colors } = useTheme();
 
   useEffect(() => {
-    // Initialize conversation if needed
     const initializeConversation = async () => {
       if (!user || !userProfile || !item) return;
-
       try {
         if (!conversationId) {
-          // Create or get conversation
           const newConversationId = await createConversation(
             user.uid,
             item.id || item.uid,
@@ -53,18 +55,14 @@ const MessagesConvo = (props: any) => {
         Alert.alert('Error', 'Failed to initialize conversation');
       }
     };
-
     initializeConversation();
   }, [user, userProfile, item, conversationId]);
 
   useEffect(() => {
     if (!conversationId) return;
-
-    // Subscribe to messages
     const unsubscribe = subscribeToMessages(conversationId, (messages: any) => {
       setAllMessages(messages);
     });
-
     return () => unsubscribe();
   }, [conversationId]);
 
@@ -76,7 +74,6 @@ const MessagesConvo = (props: any) => {
 
   const handleSend = async () => {
     if (input.trim() === '' || !conversationId || !user || !userProfile) return;
-
     setLoading(true);
     try {
       await sendMessage(
@@ -97,18 +94,33 @@ const MessagesConvo = (props: any) => {
   if (!item) return null;
 
   return (
-    <Modal visible={!!item} onRequestClose={onClose}>
-      <View style={styles.overlay}>
+    <Modal visible={!!item} onRequestClose={onClose} animationType="slide">
+      <View style={[styles.overlay, { backgroundColor: colors.background }]}>
         <KeyboardAvoidingView
-          style={styles.iphoneContainer}
+          style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           {/* Header */}
-          <View style={[styles.headerBar, { paddingTop: insets.top }]}>
+          <View
+            style={[
+              styles.headerBar,
+              {
+                paddingTop: insets.top,
+                backgroundColor: colors.card,
+                borderBottomColor: colors.border || colors.card,
+              },
+            ]}
+          >
             <Pressable style={styles.backButton} onPress={onClose}>
-              <Ionicons name="chevron-back" size={28} color="#007aff" />
+              <Ionicons
+                name="chevron-back"
+                size={28}
+                color={(colors as any).accent}
+              />
             </Pressable>
-            <Text style={styles.headerText}>{item.name}</Text>
+            <Text style={[styles.headerText, { color: colors.text }]}>
+              {item.name}
+            </Text>
           </View>
           {/* Messages */}
           <FlatList
@@ -121,44 +133,81 @@ const MessagesConvo = (props: any) => {
               <View
                 style={[
                   styles.messageBubble,
-                  msg.senderId === user?.uid
-                    ? styles.myMessage
-                    : styles.otherMessage,
+                  {
+                    alignSelf:
+                      msg.senderId === user?.uid ? 'flex-end' : 'flex-start',
+                    backgroundColor:
+                      msg.senderId === user?.uid
+                        ? (colors as any).accent
+                        : colors.card,
+                  },
                 ]}
               >
                 {msg.senderId !== user?.uid && (
-                  <Text style={styles.sender}>{msg.sender}</Text>
+                  <Text
+                    style={[styles.sender, { color: (colors as any).accent }]}
+                  >
+                    {msg.sender}
+                  </Text>
                 )}
                 <Text
                   style={[
                     styles.messageText,
-                    msg.senderId === user?.uid && { color: '#fff' },
+                    {
+                      color:
+                        msg.senderId === user?.uid
+                          ? colors.background
+                          : colors.text,
+                    },
                   ]}
                 >
                   {msg.text}
                 </Text>
-                <Text style={styles.time}>{msg.time}</Text>
+                <Text style={[styles.time, { color: colors.text + '99' }]}>
+                  {msg.time}
+                </Text>
               </View>
             )}
             contentContainerStyle={styles.messagesList}
+            style={{ flex: 1, width: '100%' }}
           />
           {/* Input */}
-          <View style={styles.inputRow}>
+          <View
+            style={[
+              styles.inputRow,
+              {
+                backgroundColor: colors.card,
+                borderTopColor: colors.border || colors.card,
+                paddingBottom: insets.bottom,
+              },
+            ]}
+          >
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  color: colors.text,
+                  borderColor: colors.border || colors.card,
+                },
+              ]}
               value={input}
               onChangeText={setInput}
               placeholder="Message"
-              placeholderTextColor="#888"
+              placeholderTextColor={colors.text + '99'}
               onSubmitEditing={handleSend}
               returnKeyType="send"
             />
             <Pressable
-              style={[styles.sendButton, loading && styles.sendButtonDisabled]}
+              style={[
+                styles.sendButton,
+                { backgroundColor: (colors as any).accent },
+                loading && styles.sendButtonDisabled,
+              ]}
               onPress={handleSend}
               disabled={loading}
             >
-              <Ionicons name="arrow-up" size={22} color="#fff" />
+              <Ionicons name="arrow-up" size={22} color={colors.background} />
             </Pressable>
           </View>
         </KeyboardAvoidingView>
@@ -168,33 +217,23 @@ const MessagesConvo = (props: any) => {
 };
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+    width: '100%',
+  },
   overlay: {
     flex: 1,
-    backgroundColor: '#f5f5f7',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  iphoneContainer: {
     width: '100%',
-    maxWidth: 480,
-    height: '100%',
-    backgroundColor: '#f5f5f7',
-    alignSelf: 'center',
-    // shadowColor: "#000",
-    // shadowOpacity: 0.12,
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowRadius: 8,
-    elevation: 6,
-    flex: 1,
   },
   headerBar: {
     height: 56,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5ea',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    width: '100%',
   },
   backButton: {
     padding: 4,
@@ -203,7 +242,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontWeight: '600',
     fontSize: 18,
-    color: '#222',
   },
   messagesList: {
     padding: 12,
@@ -216,35 +254,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 22,
     marginBottom: 8,
-    alignSelf: 'flex-start',
-    // shadowColor: "#000",
-    // shadowOpacity: 0.04,
-    // shadowOffset: { width: 0, height: 1 },
-    // shadowRadius: 2,
-  },
-  myMessage: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#007aff',
-    borderBottomRightRadius: 6,
-  },
-  otherMessage: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#e5e5ea',
-    borderBottomLeftRadius: 6,
   },
   sender: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#007aff',
     marginBottom: 2,
   },
   messageText: {
-    color: '#222',
     fontSize: 16,
   },
   time: {
     fontSize: 11,
-    color: '#888',
     marginTop: 4,
     textAlign: 'right',
     alignSelf: 'flex-end',
@@ -252,10 +272,9 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: '#e5e5ea',
     padding: 10,
-    backgroundColor: '#fff',
     alignItems: 'center',
+    width: '100%',
   },
   input: {
     flex: 1,
@@ -263,14 +282,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#ccc',
     fontSize: 16,
-    backgroundColor: '#f5f5f7',
     marginRight: 8,
-    color: '#222',
   },
   sendButton: {
-    backgroundColor: '#007aff',
     borderRadius: 20,
     padding: 10,
     alignItems: 'center',

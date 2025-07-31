@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,29 +10,32 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { subscribeToPublicMessages, sendPublicMessage } from "../../firebase/publicChatService";
-import { useUser } from "../../store/UserContext";
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import {
+  subscribeToPublicMessages,
+  sendPublicMessage,
+} from '../../firebase/publicChatService';
+import { useUser } from '../../store/UserContext';
+import { useTheme } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PublicChatConvo = (props: any) => {
   const { chat, onClose } = props;
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [allMessages, setAllMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const insets = useSafeAreaInsets();
   const { user, userProfile } = useUser();
+  const { colors } = useTheme();
 
   useEffect(() => {
     if (!chat?.id) return;
-
-    // Subscribe to messages
     const unsubscribe = subscribeToPublicMessages(chat.id, (messages: any) => {
       setAllMessages(messages);
     });
-
     return () => unsubscribe();
   }, [chat?.id]);
 
@@ -43,20 +46,19 @@ const PublicChatConvo = (props: any) => {
   }, [allMessages]);
 
   const handleSend = async () => {
-    if (input.trim() === "" || !chat?.id || !user || !userProfile) return;
-    
+    if (input.trim() === '' || !chat?.id || !user || !userProfile) return;
     setLoading(true);
     try {
       await sendPublicMessage(
         chat.id,
         user.uid,
-        userProfile.displayName || user.email || "Unknown",
+        userProfile.displayName || user.email || 'Unknown',
         input.trim()
       );
-      setInput("");
+      setInput('');
     } catch (error) {
-      console.error("Error sending message:", error);
-      Alert.alert("Error", "Failed to send message");
+      console.error('Error sending message:', error);
+      Alert.alert('Error', 'Failed to send message');
     } finally {
       setLoading(false);
     }
@@ -65,24 +67,52 @@ const PublicChatConvo = (props: any) => {
   if (!chat) return null;
 
   return (
-    <Modal visible={!!chat} onRequestClose={onClose}>
-      <View style={styles.overlay}>
+    <Modal visible={!!chat} onRequestClose={onClose} animationType="slide">
+      <View
+        style={[
+          styles.overlay,
+          { backgroundColor: colors.background, paddingTop: insets.top },
+        ]}
+      >
         <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           {/* Header */}
-          <View style={[styles.headerBar, { paddingTop: insets.top }]}>
+          <View
+            style={[
+              styles.headerBar,
+              {
+                backgroundColor: colors.card,
+                borderBottomColor: colors.border || colors.card,
+              },
+            ]}
+          >
             <Pressable style={styles.backButton} onPress={onClose}>
-              <Ionicons name="chevron-back" size={28} color="#4fc3f7" />
+              <Ionicons
+                name="chevron-back"
+                size={28}
+                color={(colors as any).accent}
+              />
             </Pressable>
             <View style={styles.headerInfo}>
-              <Text style={styles.headerText}>{chat.name}</Text>
-              <Text style={styles.headerSubtext}>
+              <Text style={[styles.headerText, { color: colors.text }]}>
+                {chat.name}
+              </Text>
+              <Text
+                style={[
+                  styles.headerSubtext,
+                  { color: (colors as any).accent },
+                ]}
+              >
                 {chat.participantCount} people nearby
               </Text>
             </View>
-            <Ionicons name="location" size={24} color="#4fc3f7" />
+            <Ionicons
+              name="location"
+              size={24}
+              color={(colors as any).accent}
+            />
           </View>
 
           {/* Messages */}
@@ -96,55 +126,96 @@ const PublicChatConvo = (props: any) => {
               <View
                 style={[
                   styles.messageBubble,
-                  msg.senderId === user?.uid
-                    ? styles.myMessage
-                    : styles.otherMessage,
+                  {
+                    alignSelf:
+                      msg.senderId === user?.uid ? 'flex-end' : 'flex-start',
+                    backgroundColor:
+                      msg.senderId === user?.uid
+                        ? (colors as any).accent
+                        : colors.card,
+                  },
                 ]}
               >
                 {msg.senderId !== user?.uid && (
-                  <Text style={styles.sender}>{msg.sender}</Text>
+                  <Text
+                    style={[styles.sender, { color: (colors as any).accent }]}
+                  >
+                    {msg.sender}
+                  </Text>
                 )}
                 <Text
                   style={[
                     styles.messageText,
-                    msg.senderId === user?.uid && { color: "#fff" },
+                    {
+                      color:
+                        msg.senderId === user?.uid
+                          ? colors.background
+                          : colors.text,
+                    },
                   ]}
                 >
                   {msg.text}
                 </Text>
-                <Text style={styles.time}>{msg.time}</Text>
+                <Text style={[styles.time, { color: colors.text + '99' }]}>
+                  {msg.time}
+                </Text>
               </View>
             )}
             contentContainerStyle={styles.messagesList}
             ListEmptyComponent={
               <View style={styles.emptyMessages}>
-                <Ionicons name="chatbubbles-outline" size={48} color="#666" />
-                <Text style={styles.emptyText}>
+                <Ionicons
+                  name="chatbubbles-outline"
+                  size={48}
+                  color={colors.text + '66'}
+                />
+                <Text style={[styles.emptyText, { color: colors.text + '99' }]}>
                   No messages yet. Be the first to say hello!
                 </Text>
               </View>
             }
+            style={{ flex: 1, width: '100%' }}
           />
 
           {/* Input */}
-          <View style={styles.inputRow}>
+          <View
+            style={[
+              styles.inputRow,
+              {
+                backgroundColor: colors.card,
+                borderTopColor: colors.border || colors.card,
+                paddingBottom: insets.bottom,
+              },
+            ]}
+          >
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.background,
+                  color: colors.text,
+                  borderColor: colors.border || colors.card,
+                },
+              ]}
               value={input}
               onChangeText={setInput}
               placeholder="Message everyone nearby..."
-              placeholderTextColor="#888"
+              placeholderTextColor={colors.text + '99'}
               onSubmitEditing={handleSend}
               returnKeyType="send"
               multiline
               maxLength={500}
             />
-            <Pressable 
-              style={[styles.sendButton, loading && styles.sendButtonDisabled]} 
+            <Pressable
+              style={[
+                styles.sendButton,
+                { backgroundColor: (colors as any).accent },
+                loading && styles.sendButtonDisabled,
+              ]}
               onPress={handleSend}
               disabled={loading}
             >
-              <Ionicons name="arrow-up" size={22} color="#fff" />
+              <Ionicons name="arrow-up" size={22} color={colors.background} />
             </Pressable>
           </View>
         </KeyboardAvoidingView>
@@ -154,24 +225,21 @@ const PublicChatConvo = (props: any) => {
 };
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+    width: '100%',
+  },
   overlay: {
     flex: 1,
-    backgroundColor: "#181c24",
-  },
-  container: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: "#181c24",
-    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
   headerBar: {
     height: 56,
-    backgroundColor: "#2a2f3a",
-    borderBottomWidth: 1,
-    borderBottomColor: "#3a3f4a",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
   },
   backButton: {
     padding: 4,
@@ -181,74 +249,56 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerText: {
-    fontWeight: "600",
+    fontWeight: '600',
     fontSize: 18,
-    color: "#fff",
   },
   headerSubtext: {
     fontSize: 12,
-    color: "#4fc3f7",
   },
   messagesList: {
     padding: 12,
     flexGrow: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
   },
   messageBubble: {
-    maxWidth: "75%",
+    maxWidth: '75%',
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 22,
     marginBottom: 8,
-    alignSelf: "flex-start",
-  },
-  myMessage: {
-    alignSelf: "flex-end",
-    backgroundColor: "#4fc3f7",
-    borderBottomRightRadius: 6,
-  },
-  otherMessage: {
-    alignSelf: "flex-start",
-    backgroundColor: "#2a2f3a",
-    borderBottomLeftRadius: 6,
   },
   sender: {
     fontSize: 12,
-    fontWeight: "bold",
-    color: "#4fc3f7",
+    fontWeight: 'bold',
     marginBottom: 2,
   },
   messageText: {
-    color: "#fff",
     fontSize: 16,
     lineHeight: 20,
   },
   time: {
     fontSize: 11,
-    color: "#888",
     marginTop: 4,
-    textAlign: "right",
-    alignSelf: "flex-end",
+    textAlign: 'right',
+    alignSelf: 'flex-end',
   },
   emptyMessages: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingTop: 60,
   },
   emptyText: {
     fontSize: 16,
-    color: "#666",
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 12,
   },
   inputRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: "#3a3f4a",
     padding: 10,
-    backgroundColor: "#2a2f3a",
-    alignItems: "flex-end",
+    alignItems: 'flex-end',
+    width: '100%',
   },
   input: {
     flex: 1,
@@ -256,19 +306,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#3a3f4a",
     fontSize: 16,
-    backgroundColor: "#181c24",
     marginRight: 8,
-    color: "#fff",
     maxHeight: 100,
   },
   sendButton: {
-    backgroundColor: "#4fc3f7",
     borderRadius: 20,
     padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sendButtonDisabled: {
     opacity: 0.5,

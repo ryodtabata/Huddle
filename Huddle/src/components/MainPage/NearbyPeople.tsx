@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getNearbyUsers } from '../../firebase/geoService';
 import { PeopleList, Person } from './PeopleList';
 import { useUser } from '../../store/UserContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface NearbyPeopleProps {
   onMessage?: (person: Person) => void;
@@ -61,14 +62,16 @@ export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
   }, [userProfile?.location?.latitude, userProfile?.location?.longitude]);
 
   return (
-    <PeopleList
-      people={people}
-      loading={loading}
-      showAsFriends={false}
-      onMessage={onMessage}
-      showSearch={true}
-      showDistance={true}
-      emptyMessage="No nearby people found"
-    />
+    <SafeAreaView>
+      <PeopleList
+        people={people}
+        loading={loading}
+        showAsFriends={false}
+        onMessage={onMessage}
+        showSearch={true}
+        showDistance={true}
+        emptyMessage="No nearby people found"
+      />
+    </SafeAreaView>
   );
 }

@@ -87,6 +87,7 @@ export function PeopleList({
         </View>
       ) : (
         <FlatList
+          contentContainerStyle={{ paddingBottom: 16 }}
           data={filteredPeople}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
@@ -149,6 +150,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    paddingTop: 8, // or whatever value you prefer
   },
   searchBar: {
     borderRadius: 24,
@@ -158,7 +160,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   emptyContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 60,
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   info: {
-    flex: 1,
+    width: '80%',
     justifyContent: 'center',
   },
   personName: {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,18 +9,19 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Ionicons from "@expo/vector-icons/Ionicons";
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   signInWithEmail,
   signInWithGoogle,
   signUpWithEmail,
-} from "../../firebase/authFunctions";
+} from '../../firebase/authFunctions';
+import { useTheme } from '@react-navigation/native';
 
 // Create a form component that will render as <form> on web
 const FormView =
-  Platform.OS === "web"
+  Platform.OS === 'web'
     ? ({ children, onSubmit, style, ...props }: any) => {
         // Filter out React Native specific props that don't belong on HTML form elements
         const { pointerEvents, ...webProps } = props;
@@ -30,7 +31,7 @@ const FormView =
         };
 
         return React.createElement(
-          "form",
+          'form',
           {
             onSubmit: (e: any) => {
               e.preventDefault();
@@ -51,33 +52,34 @@ interface AuthScreenProps {
 
 export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const handleAuth = async () => {
-    setErrorMessage(""); // Clear previous errors
+    setErrorMessage(''); // Clear previous errors
 
     if (!email || !password) {
-      setErrorMessage("Please fill in all required fields");
+      setErrorMessage('Please fill in all required fields');
       return;
     }
 
     if (isSignUp) {
       if (!name) {
-        setErrorMessage("Please enter your name");
+        setErrorMessage('Please enter your name');
         return;
       }
       if (password !== confirmPassword) {
-        setErrorMessage("Passwords do not match");
+        setErrorMessage('Passwords do not match');
         return;
       }
       if (password.length < 6) {
-        setErrorMessage("Password must be at least 6 characters");
+        setErrorMessage('Password must be at least 6 characters');
         return;
       }
     }
@@ -92,44 +94,44 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       }
 
       if (isSignUp) {
-        Alert.alert("Success", "Account created successfully!", [
-          { text: "OK", onPress: () => onAuthSuccess() },
+        Alert.alert('Success', 'Account created successfully!', [
+          { text: 'OK', onPress: () => onAuthSuccess() },
         ]);
       } else {
         onAuthSuccess();
       }
     } catch (error) {
-      console.error("Authentication error:", error);
+      console.error('Authentication error:', error);
 
       // Handle specific Firebase errors
-      let errorMsg = "Authentication failed. Please try again.";
+      let errorMsg = 'Authentication failed. Please try again.';
 
       if (
-        typeof error === "object" &&
+        typeof error === 'object' &&
         error !== null &&
-        "message" in error &&
-        typeof (error as any).message === "string"
+        'message' in error &&
+        typeof (error as any).message === 'string'
       ) {
         const message = (error as any).message as string;
-        if (message.includes("auth/invalid-credential")) {
+        if (message.includes('auth/invalid-credential')) {
           errorMsg =
-            "Invalid email or password. Please check your credentials.";
-        } else if (message.includes("auth/user-not-found")) {
-          errorMsg = "No account found with this email address.";
-        } else if (message.includes("auth/wrong-password")) {
-          errorMsg = "Incorrect password. Please try again.";
-        } else if (message.includes("auth/invalid-email")) {
-          errorMsg = "Please enter a valid email address.";
-        } else if (message.includes("auth/user-disabled")) {
-          errorMsg = "This account has been disabled.";
-        } else if (message.includes("auth/email-already-in-use")) {
-          errorMsg = "An account with this email already exists.";
-        } else if (message.includes("auth/weak-password")) {
-          errorMsg = "Password is too weak. Please choose a stronger password.";
-        } else if (message.includes("auth/network-request-failed")) {
-          errorMsg = "Network error. Please check your internet connection.";
-        } else if (message.includes("auth/too-many-requests")) {
-          errorMsg = "Too many failed attempts. Please try again later.";
+            'Invalid email or password. Please check your credentials.';
+        } else if (message.includes('auth/user-not-found')) {
+          errorMsg = 'No account found with this email address.';
+        } else if (message.includes('auth/wrong-password')) {
+          errorMsg = 'Incorrect password. Please try again.';
+        } else if (message.includes('auth/invalid-email')) {
+          errorMsg = 'Please enter a valid email address.';
+        } else if (message.includes('auth/user-disabled')) {
+          errorMsg = 'This account has been disabled.';
+        } else if (message.includes('auth/email-already-in-use')) {
+          errorMsg = 'An account with this email already exists.';
+        } else if (message.includes('auth/weak-password')) {
+          errorMsg = 'Password is too weak. Please choose a stronger password.';
+        } else if (message.includes('auth/network-request-failed')) {
+          errorMsg = 'Network error. Please check your internet connection.';
+        } else if (message.includes('auth/too-many-requests')) {
+          errorMsg = 'Too many failed attempts. Please try again later.';
         }
       }
 
@@ -140,24 +142,29 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   };
 
   const handleGoogleSignIn = async () => {
-    setErrorMessage(""); // Clear previous errors
+    setErrorMessage(''); // Clear previous errors
     setIsLoading(true);
     try {
       await signInWithGoogle();
-      Alert.alert("Success", "Signed in with Google!", [
-        { text: "OK", onPress: () => onAuthSuccess() },
+      Alert.alert('Success', 'Signed in with Google!', [
+        { text: 'OK', onPress: () => onAuthSuccess() },
       ]);
     } catch (error) {
-      setErrorMessage("Google sign in failed. Please try again.");
+      setErrorMessage('Google sign in failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  console.log(colors);
+
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { paddingTop: insets.top }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={[
+        styles.container,
+        { backgroundColor: colors.background, paddingTop: insets.top },
+      ]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -165,26 +172,36 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.appTitle}>Huddle</Text>
-          <Text style={styles.subtitle}>
-            {isSignUp ? "Create your account" : "Welcome back"}
+          <Text style={[styles.appTitle, { color: (colors as any).accent }]}>
+            Huddle
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.text + '99' }]}>
+            {isSignUp ? 'Create your account' : 'Welcome back'}
           </Text>
         </View>
 
-        {/* Form */}
         <FormView style={styles.form} onSubmit={handleAuth}>
           {isSignUp && (
-            <View style={styles.inputContainer}>
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.card, // or '#ccc' for a fixed grey
+                  borderWidth: 1,
+                },
+              ]}
+            >
               <Ionicons
                 name="person-outline"
                 size={20}
-                color="#4fc3f7"
+                color={(colors as any).accent}
                 style={styles.inputIcon}
               />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Full Name"
-                placeholderTextColor="#888"
+                placeholderTextColor={colors.text + '99'}
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
@@ -193,17 +210,26 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             </View>
           )}
 
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.card, // or '#ccc'
+                borderWidth: 1,
+              },
+            ]}
+          >
             <Ionicons
               name="mail-outline"
               size={20}
-              color="#4fc3f7"
+              color={(colors as any).accent}
               style={styles.inputIcon}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.text }]}
               placeholder="Email"
-              placeholderTextColor="#888"
+              placeholderTextColor={colors.text + '99'}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -214,38 +240,56 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             />
           </View>
 
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.card, // or '#ccc'
+                borderWidth: 1,
+              },
+            ]}
+          >
             <Ionicons
               name="lock-closed-outline"
               size={20}
-              color="#4fc3f7"
+              color={(colors as any).accent}
               style={styles.inputIcon}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.text }]}
               placeholder="Password"
-              placeholderTextColor="#888"
+              placeholderTextColor={colors.text + '99'}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
               autoCapitalize="none"
-              autoComplete={isSignUp ? "new-password" : "current-password"}
-              textContentType={isSignUp ? "newPassword" : "password"}
+              autoComplete={isSignUp ? 'new-password' : 'current-password'}
+              textContentType={isSignUp ? 'newPassword' : 'password'}
             />
           </View>
 
           {isSignUp && (
-            <View style={styles.inputContainer}>
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.card, // or '#ccc'
+                  borderWidth: 1,
+                },
+              ]}
+            >
               <Ionicons
                 name="lock-closed-outline"
                 size={20}
-                color="#4fc3f7"
+                color={(colors as any).accent}
                 style={styles.inputIcon}
               />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Confirm Password"
-                placeholderTextColor="#888"
+                placeholderTextColor={colors.text + '99'}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
@@ -255,22 +299,29 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               />
             </View>
           )}
-
-          {/* Error Message - Add this below the password fields */}
+          {/* Error Message */}
           {errorMessage ? (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{errorMessage}</Text>
+              <Text
+                style={[styles.errorText, { color: (colors as any).danger }]}
+              >
+                {errorMessage}
+              </Text>
             </View>
           ) : null}
 
           {/* Main Auth Button */}
           <Pressable
-            style={[styles.authButton, isLoading && styles.disabledButton]}
+            style={[
+              styles.authButton,
+              { backgroundColor: (colors as any).accent },
+              isLoading && styles.disabledButton,
+            ]}
             onPress={handleAuth}
             disabled={isLoading}
           >
-            <Text style={styles.authButtonText}>
-              {isLoading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+            <Text style={[styles.authButtonText, { color: colors.background }]}>
+              {isLoading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
             </Text>
           </Pressable>
         </FormView>
@@ -298,24 +349,33 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               style={styles.forgotPasswordButton}
               onPress={() =>
                 Alert.alert(
-                  "Info",
-                  "Forgot password functionality coming soon!"
+                  'Info',
+                  'Forgot password functionality coming soon!'
                 )
               }
             >
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              <Text
+                style={[
+                  styles.forgotPasswordText,
+                  { color: (colors as any).accent },
+                ]}
+              >
+                Forgot Password?
+              </Text>
             </Pressable>
           )}
         </View>
 
         {/* Toggle Sign In/Up */}
         <View style={styles.toggleContainer}>
-          <Text style={styles.toggleText}>
-            {isSignUp ? "Already have an account?" : "Don't have an account?"}
+          <Text style={[styles.toggleText, { color: colors.text + '99' }]}>
+            {isSignUp ? 'Already have an account?' : "Don't have an account?"}
           </Text>
           <Pressable onPress={() => setIsSignUp(!isSignUp)}>
-            <Text style={styles.toggleLink}>
-              {isSignUp ? "Sign In" : "Sign Up"}
+            <Text
+              style={[styles.toggleLink, { color: (colors as any).accent }]}
+            >
+              {isSignUp ? 'Sign In' : 'Sign Up'}
             </Text>
           </Pressable>
         </View>
@@ -330,35 +390,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   errorText: {
-    color: "#ff4444",
     fontSize: 14,
-    textAlign: "center",
-    fontWeight: "500",
+    textAlign: 'center',
+    fontWeight: '500',
+    // color is set inline
   },
   container: {
     flex: 1,
-    backgroundColor: "#181c24",
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     paddingHorizontal: 24,
     paddingVertical: 20,
   },
   header: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 40,
   },
   appTitle: {
     fontSize: 36,
-    fontWeight: "bold",
-    color: "#4fc3f7",
+    fontWeight: 'bold',
     marginBottom: 8,
+    // color is set inline
   },
   subtitle: {
     fontSize: 18,
-    color: "#b0b0b0",
-    textAlign: "center",
+    textAlign: 'center',
+    // color is set inline
   },
   form: {
     marginBottom: 30,
@@ -367,77 +426,78 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#232a36",
+    flexDirection: 'row',
+    alignItems: 'center',
     borderRadius: 12,
     marginBottom: 16,
     paddingHorizontal: 16,
     paddingVertical: 4,
+    // backgroundColor is set inline
   },
   inputIcon: {
     marginRight: 12,
   },
   input: {
     flex: 1,
-    color: "#fff",
     fontSize: 16,
     paddingVertical: 16,
+    // color is set inline
   },
   authButton: {
-    backgroundColor: "#4fc3f7",
     borderRadius: 12,
     paddingVertical: 16,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 8,
     marginBottom: 16,
+    // backgroundColor is set inline
   },
   authButtonText: {
-    color: "#fff",
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
+    // color is set inline
   },
   googleButton: {
-    backgroundColor: "#db4437",
     borderRadius: 12,
     paddingVertical: 16,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginBottom: 16,
+    backgroundColor: '#e60f21ff', // Google's blue color
+    // backgroundColor is always Google's color, so leave as is
   },
   googleIcon: {
     marginRight: 8,
   },
   googleButtonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   disabledButton: {
     opacity: 0.6,
   },
   forgotPasswordButton: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 8,
   },
   forgotPasswordText: {
-    color: "#4fc3f7",
     fontSize: 16,
+    // color is set inline
   },
   toggleContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   toggleText: {
-    color: "#b0b0b0",
     fontSize: 16,
     marginRight: 4,
+    // color is set inline
   },
   toggleLink: {
-    color: "#4fc3f7",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
+    // color is set inline
   },
 });

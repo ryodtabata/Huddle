@@ -17,6 +17,7 @@ import {
 import Ionicons from '@expo/vector-icons/Ionicons';
 import PublicChatConvo from './PublicChatConvo';
 import { useTheme } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PublicChatsPage = () => {
   const { user, userProfile } = useUser();
@@ -26,7 +27,6 @@ const PublicChatsPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { colors } = useTheme();
 
-  // Auto-join proximity chat when user location changes
   useEffect(() => {
     if (user && userProfile && userProfile.location) {
       autoJoinProximityChat();
@@ -36,7 +36,6 @@ const PublicChatsPage = () => {
 
   const autoJoinProximityChat = async () => {
     if (!user || !userProfile || !userProfile.location) return;
-
     try {
       await joinProximityChat(
         user.uid,
@@ -50,20 +49,17 @@ const PublicChatsPage = () => {
 
   const subscribeToChats = () => {
     if (!userProfile?.location) return;
-
     const unsubscribe = subscribeToProximityChats(
       userProfile.location,
       (chats: any) => {
         setPublicChats(chats);
       }
     );
-
     return unsubscribe;
   };
 
   const handleRefresh = async () => {
     if (!userProfile?.location) return;
-
     setRefreshing(true);
     try {
       const chats = await getProximityChats(userProfile.location);
@@ -75,9 +71,17 @@ const PublicChatsPage = () => {
       setRefreshing(false);
     }
   };
+
   const renderChatItem = ({ item }: any) => (
     <Pressable
-      style={[styles.chatItem, { borderBottomColor: colors.card }]}
+      style={[
+        styles.chatItem,
+        {
+          borderBottomColor: colors.card,
+          backgroundColor: colors.background,
+          width: '100%',
+        },
+      ]}
       onPress={() => setSelectedChat(item)}
     >
       <View style={[styles.chatIcon, { backgroundColor: colors.card }]}>
@@ -118,10 +122,16 @@ const PublicChatsPage = () => {
       </View>
     );
   }
-
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.card }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <View
+        style={[
+          styles.header,
+          { borderBottomColor: colors.card, width: '100%' },
+        ]}
+      >
         <Text style={[styles.title, { color: colors.text }]}>Public Chats</Text>
         <Text style={[styles.subtitle, { color: colors.text + '99' }]}>
           Chat with people within 5km of your location
@@ -158,6 +168,7 @@ const PublicChatsPage = () => {
         contentContainerStyle={
           publicChats.length === 0 ? styles.emptyList : styles.list
         }
+        style={{ flex: 1, width: '100%' }}
       />
 
       {selectedChat && (
@@ -166,18 +177,20 @@ const PublicChatsPage = () => {
           onClose={() => setSelectedChat(null)}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
   },
   header: {
     padding: 20,
     paddingTop: 40,
     borderBottomWidth: 1,
+    width: '100%',
   },
   title: {
     fontSize: 28,
@@ -199,6 +212,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
+    width: '100%',
   },
   chatIcon: {
     width: 48,
