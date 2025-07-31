@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
-
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import { FriendsList } from '../../components/Friends/FriendsList';
 import { FriendRequests } from '../../components/Friends/FriendRequests';
 import { Person } from '../../components/MainPage/PeopleList';
@@ -13,6 +12,7 @@ export function Friends() {
   const [activeTab, setActiveTab] = useState<'friends' | 'requests'>('friends');
   const [refreshCount, setRefreshCount] = useState(0);
   const friendRequestCount = useFriendRequestCount(refreshCount);
+  const { colors } = useTheme();
 
   const handleMessage = (person: Person) => {
     Alert.alert('Message', `Opening chat with ${person.name}...`);
@@ -20,32 +20,39 @@ export function Friends() {
   };
 
   const handleRequestCountChange = useCallback(() => {
-    // Force re-fetch of friend request count
     setRefreshCount((prev) => prev + 1);
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { borderBottomColor: colors.card }]}>
         <Pressable
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#4fc3f7" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
-        <Text style={styles.title}>Friends</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Friends</Text>
       </View>
 
       {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
+      <View style={[styles.tabContainer, { backgroundColor: colors.card }]}>
         <Pressable
-          style={[styles.tab, activeTab === 'friends' && styles.activeTab]}
+          style={[
+            styles.tab,
+            activeTab === 'friends' && {
+              backgroundColor: (colors as any).accent,
+            },
+          ]}
           onPress={() => setActiveTab('friends')}
         >
           <Text
             style={[
               styles.tabText,
-              activeTab === 'friends' && styles.activeTabText,
+              activeTab === 'friends' && {
+                color: colors.background,
+                fontWeight: 'bold',
+              },
             ]}
           >
             My Friends
@@ -53,20 +60,33 @@ export function Friends() {
         </Pressable>
 
         <Pressable
-          style={[styles.tab, activeTab === 'requests' && styles.activeTab]}
+          style={[
+            styles.tab,
+            activeTab === 'requests' && {
+              backgroundColor: (colors as any).accent,
+            },
+          ]}
           onPress={() => setActiveTab('requests')}
         >
           <View style={styles.tabContent}>
             <Text
               style={[
                 styles.tabText,
-                activeTab === 'requests' && styles.activeTabText,
+                activeTab === 'requests' && {
+                  color: colors.background,
+                  fontWeight: 'bold',
+                },
               ]}
             >
               Requests
             </Text>
             {friendRequestCount > 0 && (
-              <View style={styles.badge}>
+              <View
+                style={[
+                  styles.badge,
+                  { backgroundColor: (colors as any).danger },
+                ]}
+              >
                 <Text style={styles.badgeText}>
                   {friendRequestCount > 99 ? '99+' : friendRequestCount}
                 </Text>
@@ -91,7 +111,6 @@ export function Friends() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181c24',
   },
   header: {
     flexDirection: 'row',
@@ -100,7 +119,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#232a36',
+    // borderBottomColor: '#232a36', // replaced with theme
   },
   backButton: {
     marginRight: 16,
@@ -109,15 +128,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    // color: '#fff', // replaced with theme
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#232a36',
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 12,
     padding: 4,
+    // backgroundColor: '#232a36', // replaced with theme
   },
   tab: {
     flex: 1,
@@ -125,9 +144,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: 'center',
+    // backgroundColor: 'transparent', // replaced with theme
   },
   activeTab: {
-    backgroundColor: '#4fc3f7',
+    // backgroundColor: '#4fc3f7', // replaced with theme
   },
   tabText: {
     fontSize: 16,
@@ -135,7 +155,7 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
   },
   activeTabText: {
-    color: '#fff',
+    // color: '#fff', // replaced with theme
   },
   content: {
     flex: 1,
@@ -151,13 +171,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -12,
-    backgroundColor: '#ef4444',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 6,
+    // backgroundColor: '#ff4757', // replaced with theme
   },
   badgeText: {
     color: '#fff',

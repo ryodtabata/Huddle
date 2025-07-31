@@ -24,6 +24,7 @@ import {
 } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { useTheme } from '@react-navigation/native';
 
 // Create a separate memoized component for InputField
 const InputField = memo(
@@ -140,6 +141,7 @@ const inputStyles = StyleSheet.create({
 const EditProfileComponent = () => {
   const navigation = useNavigation<any>();
   const { user, userProfile } = useUser();
+  const { colors } = useTheme();
 
   //feilds for profile editing
   const [name, setName] = useState('');
@@ -343,16 +345,22 @@ const EditProfileComponent = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { borderBottomColor: colors.card }]}>
         <Pressable
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#4fc3f7" />
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={(colors as any).accent}
+          />
         </Pressable>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>Edit Profile</Text>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Edit Profile
+          </Text>
         </View>
       </View>
 
@@ -371,32 +379,59 @@ const EditProfileComponent = () => {
 
           {/* Profile Image Section */}
           <View style={styles.imageSection}>
-            <Text style={styles.label}>Profile Picture</Text>
+            <Text style={[styles.label, { color: colors.text }]}>
+              Profile Picture
+            </Text>
             <View style={styles.imageContainer}>
-              <View style={styles.imagePreview}>
+              <View
+                style={[
+                  styles.imagePreview,
+                  { backgroundColor: colors.card, borderColor: colors.card },
+                ]}
+              >
                 {profileImage ? (
                   <Image
                     source={{ uri: profileImage }}
                     style={styles.profileImage}
                   />
                 ) : (
-                  <View style={styles.placeholderImage}>
-                    <Ionicons name="person" size={40} color="#666" />
+                  <View
+                    style={[
+                      styles.placeholderImage,
+                      { backgroundColor: colors.background },
+                    ]}
+                  >
+                    <Ionicons
+                      name="person"
+                      size={40}
+                      color={colors.text + '99'}
+                    />
                   </View>
                 )}
               </View>
               <View style={styles.imageButtonContainer}>
                 <Pressable
-                  style={styles.imageButton}
+                  style={[
+                    styles.imageButton,
+                    {
+                      backgroundColor: colors.card,
+                      borderColor: (colors as any).accent,
+                    },
+                  ]}
                   onPress={pickImage}
                   disabled={imageUploading}
                 >
                   <Ionicons
                     name={profileImage ? 'camera' : 'add'}
                     size={20}
-                    color="#4fc3f7"
+                    color={(colors as any).accent}
                   />
-                  <Text style={styles.imageButtonText}>
+                  <Text
+                    style={[
+                      styles.imageButtonText,
+                      { color: (colors as any).accent },
+                    ]}
+                  >
                     {imageUploading
                       ? 'Uploading...'
                       : profileImage
@@ -406,12 +441,29 @@ const EditProfileComponent = () => {
                 </Pressable>
                 {profileImage && (
                   <Pressable
-                    style={styles.removeButton}
+                    style={[
+                      styles.removeButton,
+                      {
+                        backgroundColor: colors.card,
+                        borderColor: (colors as any).danger,
+                      },
+                    ]}
                     onPress={removeProfileImage}
                     disabled={imageUploading}
                   >
-                    <Ionicons name="trash-outline" size={18} color="#ff4757" />
-                    <Text style={styles.removeButtonText}>Remove</Text>
+                    <Ionicons
+                      name="trash-outline"
+                      size={18}
+                      color={(colors as any).danger}
+                    />
+                    <Text
+                      style={[
+                        styles.removeButtonText,
+                        { color: (colors as any).danger },
+                      ]}
+                    >
+                      Remove
+                    </Text>
                   </Pressable>
                 )}
               </View>
@@ -427,18 +479,30 @@ const EditProfileComponent = () => {
           />
 
           <View style={styles.inputContainer}>
-            <View style={styles.toggleContainer}>
+            <View
+              style={[
+                styles.toggleContainer,
+                { backgroundColor: colors.card, borderColor: colors.card },
+              ]}
+            >
               <View>
-                <Text style={styles.label}>Age Visibility</Text>
-                <Text style={styles.toggleSubtext}>
+                <Text style={[styles.label, { color: colors.text }]}>
+                  Age Visibility
+                </Text>
+                <Text
+                  style={[styles.toggleSubtext, { color: colors.text + '99' }]}
+                >
                   Hide your age from other users
                 </Text>
               </View>
               <Switch
                 value={hideAge}
                 onValueChange={setHideAge}
-                trackColor={{ false: '#3a4149', true: '#4fc3f7' }}
-                thumbColor={hideAge ? '#fff' : '#ccc'}
+                trackColor={{
+                  false: colors.card,
+                  true: (colors as any).accent,
+                }}
+                thumbColor={hideAge ? colors.background : colors.card}
               />
             </View>
           </View>
@@ -459,14 +523,28 @@ const EditProfileComponent = () => {
           />
 
           <View style={styles.hashtagPreview}>
-            <Text style={styles.previewLabel}>Hashtag Preview:</Text>
+            <Text
+              style={[styles.previewLabel, { color: (colors as any).accent }]}
+            >
+              Hashtag Preview:
+            </Text>
             <View style={styles.hashtagContainer}>
               {hashtags
                 .split(' ')
                 .filter((tag) => tag.startsWith('#') && tag.length > 1)
                 .map((tag, index) => (
-                  <View key={index} style={styles.hashtagTag}>
-                    <Text style={styles.hashtagText}>{tag}</Text>
+                  <View
+                    key={index}
+                    style={[
+                      styles.hashtagTag,
+                      { backgroundColor: (colors as any).accent },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.hashtagText, { color: colors.background }]}
+                    >
+                      {tag}
+                    </Text>
                   </View>
                 ))}
             </View>
@@ -479,7 +557,9 @@ const EditProfileComponent = () => {
           style={({ pressed }) => [
             styles.saveButton,
             {
-              backgroundColor: pressed ? '#29b6f6' : '#4fc3f7',
+              backgroundColor: pressed
+                ? (colors as any).accent + 'CC'
+                : (colors as any).accent,
               opacity: isLoading ? 0.7 : 1,
             },
           ]}
@@ -490,8 +570,12 @@ const EditProfileComponent = () => {
             <Text style={styles.saveButtonText}>Saving...</Text>
           ) : (
             <>
-              <Ionicons name="checkmark" size={20} color="#fff" />
-              <Text style={styles.saveButtonText}>Save Changes</Text>
+              <Ionicons name="checkmark" size={20} color={colors.background} />
+              <Text
+                style={[styles.saveButtonText, { color: colors.background }]}
+              >
+                Save Changes
+              </Text>
             </>
           )}
         </Pressable>
@@ -501,7 +585,11 @@ const EditProfileComponent = () => {
           onPress={() => navigation.goBack()}
           disabled={isLoading}
         >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
+          <Text
+            style={[styles.cancelButtonText, { color: colors.text + '99' }]}
+          >
+            Cancel
+          </Text>
         </Pressable>
       </View>
     </View>

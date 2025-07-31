@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 import { NearbyPeople } from '../../components/MainPage/NearbyPeople';
 import PuclicChatsPage from '../../components/MainPage/PublicChatspage';
 import { useUser } from '../../store/UserContext';
@@ -12,23 +13,26 @@ const TABS = [
 export function Home() {
   const { user, userProfile, loading } = useUser();
   const [activeTab, setActiveTab] = useState('nearby');
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.tabRow}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.tabRow, { backgroundColor: colors.card }]}>
         {TABS.map((tab) => (
           <Pressable
             key={tab.key}
             style={[
               styles.tabButton,
-              activeTab === tab.key && styles.tabButtonActive,
+              activeTab === tab.key && {
+                backgroundColor: (colors as any).accent,
+              },
             ]}
             onPress={() => setActiveTab(tab.key)}
           >
             <Text
               style={[
                 styles.tabButtonText,
-                activeTab === tab.key && styles.tabButtonTextActive,
+                activeTab === tab.key && { color: colors.background },
               ]}
             >
               {tab.label}
@@ -48,12 +52,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 48,
     alignItems: 'center',
-    backgroundColor: '#181c24',
   },
   tabRow: {
     flexDirection: 'row',
     marginBottom: 24,
-    backgroundColor: '#232a36',
     borderRadius: 24,
     padding: 4,
   },
@@ -63,16 +65,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: 'transparent',
   },
-  tabButtonActive: {
-    backgroundColor: '#4fc3f7',
-  },
   tabButtonText: {
     color: '#b0b0b0',
     fontWeight: 'bold',
     fontSize: 16,
-  },
-  tabButtonTextActive: {
-    color: '#fff',
   },
   content: {
     flex: 1,

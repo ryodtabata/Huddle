@@ -28,8 +28,7 @@ export function FriendsList({ onMessage }: FriendsListProps) {
           age: friend.age || 0,
           bio: friend.bio || '',
           distance: 'Friend', // For friends, we show "Friend" instead of distance
-          imageUrl:
-            friend.profileImage || 'https://i.pravatar.cc/150?u=' + friend.uid,
+          imageUrl: friend.profileImage || null,
           verified: friend.verified || false,
           tags: friend.tags || [],
         }));

@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
-  Pressable, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
   Alert,
-  RefreshControl 
+  RefreshControl,
 } from 'react-native';
 import { useUser } from '../../store/UserContext';
-import { 
-  subscribeToProximityChats, 
+import {
+  subscribeToProximityChats,
   joinProximityChat,
-  getProximityChats 
+  getProximityChats,
 } from '../../firebase/publicChatService';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import PublicChatConvo from './PublicChatConvo';
+import { useTheme } from '@react-navigation/native';
 
 const PublicChatsPage = () => {
   const { user, userProfile } = useUser();
@@ -23,6 +24,7 @@ const PublicChatsPage = () => {
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const { colors } = useTheme();
 
   // Auto-join proximity chat when user location changes
   useEffect(() => {
@@ -73,35 +75,43 @@ const PublicChatsPage = () => {
       setRefreshing(false);
     }
   };
-
   const renderChatItem = ({ item }: any) => (
     <Pressable
-      style={styles.chatItem}
+      style={[styles.chatItem, { borderBottomColor: colors.card }]}
       onPress={() => setSelectedChat(item)}
     >
-      <View style={styles.chatIcon}>
-        <Ionicons name="location" size={24} color="#4fc3f7" />
+      <View style={[styles.chatIcon, { backgroundColor: colors.card }]}>
+        <Ionicons name="location" size={24} color={(colors as any).accent} />
       </View>
       <View style={styles.chatInfo}>
-        <Text style={styles.chatName}>{item.name}</Text>
-        <Text style={styles.chatDetails}>
-          {item.participantCount} people • {Math.round(item.distance / 1000)}km away
+        <Text style={[styles.chatName, { color: colors.text }]}>
+          {item.name}
         </Text>
-        <Text style={styles.lastMessage}>
+        <Text style={[styles.chatDetails, { color: (colors as any).accent }]}>
+          {item.participantCount} people • {Math.round(item.distance / 1000)}km
+          away
+        </Text>
+        <Text style={[styles.lastMessage, { color: colors.text + '99' }]}>
           {item.lastMessage || 'No messages yet'}
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={20} color="#666" />
+      <Ionicons name="chevron-forward" size={20} color={colors.text + '99'} />
     </Pressable>
   );
 
   if (!userProfile?.location) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.noLocationContainer}>
-          <Ionicons name="location-outline" size={64} color="#666" />
-          <Text style={styles.noLocationTitle}>Location Required</Text>
-          <Text style={styles.noLocationText}>
+          <Ionicons
+            name="location-outline"
+            size={64}
+            color={colors.text + '99'}
+          />
+          <Text style={[styles.noLocationTitle, { color: colors.text }]}>
+            Location Required
+          </Text>
+          <Text style={[styles.noLocationText, { color: colors.text + '99' }]}>
             Enable location services to join local public chats in your area.
           </Text>
         </View>
@@ -110,10 +120,10 @@ const PublicChatsPage = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Public Chats</Text>
-        <Text style={styles.subtitle}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { borderBottomColor: colors.card }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Public Chats</Text>
+        <Text style={[styles.subtitle, { color: colors.text + '99' }]}>
           Chat with people within 5km of your location
         </Text>
       </View>
@@ -126,19 +136,28 @@ const PublicChatsPage = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            tintColor="#4fc3f7"
+            tintColor={(colors as any).accent}
           />
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="chatbubbles-outline" size={64} color="#666" />
-            <Text style={styles.emptyTitle}>No Public Chats</Text>
-            <Text style={styles.emptyText}>
-              No one else is nearby right now. Pull to refresh or wait for others to join!
+            <Ionicons
+              name="chatbubbles-outline"
+              size={64}
+              color={colors.text + '99'}
+            />
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
+              No Public Chats
+            </Text>
+            <Text style={[styles.emptyText, { color: colors.text + '99' }]}>
+              No one else is nearby right now. Pull to refresh or wait for
+              others to join!
             </Text>
           </View>
         }
-        contentContainerStyle={publicChats.length === 0 ? styles.emptyList : styles.list}
+        contentContainerStyle={
+          publicChats.length === 0 ? styles.emptyList : styles.list
+        }
       />
 
       {selectedChat && (
@@ -154,23 +173,19 @@ const PublicChatsPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181c24',
   },
   header: {
     padding: 20,
     paddingTop: 40,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2f3a',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#888',
   },
   list: {
     padding: 0,
@@ -184,13 +199,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2f3a',
   },
   chatIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#2a2f3a',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -201,17 +214,14 @@ const styles = StyleSheet.create({
   chatName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff',
     marginBottom: 2,
   },
   chatDetails: {
     fontSize: 14,
-    color: '#4fc3f7',
     marginBottom: 4,
   },
   lastMessage: {
     fontSize: 14,
-    color: '#888',
   },
   noLocationContainer: {
     flex: 1,
@@ -222,13 +232,11 @@ const styles = StyleSheet.create({
   noLocationTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
     marginTop: 16,
     marginBottom: 8,
   },
   noLocationText: {
     fontSize: 16,
-    color: '#888',
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -242,13 +250,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 16,
-    color: '#888',
     textAlign: 'center',
     lineHeight: 24,
   },

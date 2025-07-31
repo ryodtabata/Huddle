@@ -1,4 +1,4 @@
-import React, { use, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
   createConversation,
 } from '../../firebase/messageService';
 import { useUser } from '../../store/UserContext';
+import { useTheme } from '@react-navigation/native';
 
 const ListOfMessages = () => {
   const { user, userProfile } = useUser();
@@ -29,6 +30,7 @@ const ListOfMessages = () => {
   };
   const [selectedItem, setSelectedItem] = useState<Conversation | null>(null);
   const [showNewMessageModal, setShowNewMessageModal] = useState(false);
+  const { colors } = useTheme();
 
   // Subscribe to user's conversations
   useEffect(() => {
@@ -82,37 +84,60 @@ const ListOfMessages = () => {
 
   // search bar and conversation list
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <TextInput
-          style={styles.searchBar}
+          style={[
+            styles.searchBar,
+            {
+              backgroundColor: colors.card,
+              color: colors.text,
+            },
+          ]}
           placeholder="Search Messages"
-          placeholderTextColor="#aaa"
+          placeholderTextColor={colors.text + '99'}
           value={search}
           onChangeText={setSearch}
         />
         <Pressable
-          style={styles.plusButton}
+          style={[
+            styles.plusButton,
+            { backgroundColor: (colors as any).accent },
+          ]}
           onPress={() => setShowNewMessageModal(true)}
         >
-          <Ionicons name="add" size={25} color="#4fc3f7" />
+          <Ionicons name="add" size={25} color={colors.background} />
         </Pressable>
       </View>
-      {/*will eventuially send a messages array i guess, FIREBA */}
       <FlatList
         data={filteredConvos}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Pressable
-            style={styles.convoItem}
-            onPress={() => setSelectedItem(item)} // Navigate to conversation
+            style={[
+              styles.convoItem,
+              {
+                borderBottomColor: colors.card,
+                backgroundColor: 'transparent',
+              },
+            ]}
+            onPress={() => setSelectedItem(item)}
           >
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarText}>{item.name[0]}</Text>
+            <View
+              style={[
+                styles.avatarPlaceholder,
+                { backgroundColor: (colors as any).accent },
+              ]}
+            >
+              <Text style={[styles.avatarText, { color: colors.background }]}>
+                {item.name[0]}
+              </Text>
             </View>
             <View style={styles.convoText}>
-              <Text style={styles.convoName}>{item.name}</Text>
-              <Text style={styles.convoLast}>
+              <Text style={[styles.convoName, { color: colors.text }]}>
+                {item.name}
+              </Text>
+              <Text style={[styles.convoLast, { color: colors.text + '99' }]}>
                 {item.lastMessage || 'No messages yet'}
               </Text>
             </View>
@@ -120,7 +145,9 @@ const ListOfMessages = () => {
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No conversations found.</Text>
+            <Text style={[styles.emptyText, { color: colors.text + '99' }]}>
+              No conversations found.
+            </Text>
           </View>
         }
         contentContainerStyle={{ flexGrow: 1 }}
@@ -145,7 +172,6 @@ const ListOfMessages = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181c24',
     paddingTop: 32,
     paddingHorizontal: 0,
   },
@@ -157,16 +183,13 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     flex: 1,
-    backgroundColor: '#232a36',
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    color: '#fff',
     fontSize: 16,
     marginRight: 12,
   },
   plusButton: {
-    backgroundColor: '#fff',
     borderRadius: 20,
     padding: 4,
     elevation: 2,
@@ -177,20 +200,16 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 18,
     borderBottomWidth: 1,
-    borderBottomColor: '#232a36',
-    backgroundColor: 'transparent',
   },
   avatarPlaceholder: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#4fc3f7',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
   },
   avatarText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 20,
   },
@@ -198,13 +217,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   convoName: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 17,
     marginBottom: 2,
   },
   convoLast: {
-    color: '#b0b0b0',
     fontSize: 15,
   },
   emptyContainer: {
@@ -214,7 +231,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   emptyText: {
-    color: '#888',
     fontSize: 16,
   },
 });

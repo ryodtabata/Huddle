@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getUserFriends } from '../../firebase/friendsService';
 import { useUser } from '../../store/UserContext';
+import { useTheme } from '@react-navigation/native';
 
 type Friend = {
   id: string;
@@ -39,6 +40,7 @@ export function NewMessageModal({
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   // Load user's friends when modal opens
   useEffect(() => {
@@ -89,21 +91,35 @@ export function NewMessageModal({
       transparent={false}
       onRequestClose={onClose}
     >
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: colors.background, paddingTop: insets.top },
+        ]}
+      >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.card }]}>
           <Pressable style={styles.backButton} onPress={onClose}>
-            <Ionicons name="arrow-back" size={24} color="#4fc3f7" />
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color={(colors as any).accent}
+            />
           </Pressable>
-          <Text style={styles.headerTitle}>Message Friends</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
+            Message Friends
+          </Text>
         </View>
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
           <TextInput
-            style={styles.searchBar}
+            style={[
+              styles.searchBar,
+              { backgroundColor: colors.card, color: colors.text },
+            ]}
             placeholder="Search friends..."
-            placeholderTextColor="#aaa"
+            placeholderTextColor={colors.text + '99'}
             value={search}
             onChangeText={setSearch}
           />
@@ -115,26 +131,39 @@ export function NewMessageModal({
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <Pressable
-              style={styles.friendItem}
+              style={[styles.friendItem, { borderBottomColor: colors.card }]}
               onPress={() => handleSelectFriend(item)}
             >
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarText}>
+              <View
+                style={[
+                  styles.avatarPlaceholder,
+                  { backgroundColor: (colors as any).accent },
+                ]}
+              >
+                <Text style={[styles.avatarText, { color: colors.background }]}>
                   {item.name ? item.name[0].toUpperCase() : '?'}
                 </Text>
               </View>
               <View style={styles.friendInfo}>
-                <Text style={styles.friendName}>{item.name}</Text>
-                <Text style={styles.friendStatus}>
+                <Text style={[styles.friendName, { color: colors.text }]}>
+                  {item.name}
+                </Text>
+                <Text
+                  style={[styles.friendStatus, { color: colors.text + '99' }]}
+                >
                   {item.bio || 'Start new chat'}
                 </Text>
               </View>
-              <Ionicons name="add-circle-outline" size={20} color="#4fc3f7" />
+              <Ionicons
+                name="add-circle-outline"
+                size={20}
+                color={(colors as any).accent}
+              />
             </Pressable>
           )}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
+              <Text style={[styles.emptyText, { color: colors.text + '99' }]}>
                 {loading
                   ? 'Loading friends...'
                   : 'No friends found. Add friends to start messaging!'}
@@ -151,7 +180,6 @@ export function NewMessageModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181c24',
   },
   header: {
     flexDirection: 'row',
@@ -159,7 +187,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#232a36',
   },
   backButton: {
     marginRight: 16,
@@ -168,18 +195,15 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
   },
   searchContainer: {
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   searchBar: {
-    backgroundColor: '#232a36',
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    color: '#fff',
     fontSize: 16,
   },
   friendItem: {
@@ -188,7 +212,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#232a36',
   },
   avatar: {
     width: 50,
@@ -196,19 +219,16 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 12,
     borderWidth: 2,
-    borderColor: '#4fc3f7',
   },
   avatarPlaceholder: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#4fc3f7',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   avatarText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 20,
   },
@@ -216,13 +236,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   friendName: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 2,
   },
   friendStatus: {
-    color: '#b0b0b0',
     fontSize: 14,
   },
   emptyContainer: {
@@ -232,7 +250,6 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   emptyText: {
-    color: '#888',
     fontSize: 16,
   },
 });

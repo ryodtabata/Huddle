@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileCard } from '../../components/Profile/ProfileCard';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import { useUser } from '../../store/UserContext';
 
 type NavigationProp = {
@@ -11,13 +11,22 @@ type NavigationProp = {
 
 export function Profile() {
   const navigation = useNavigation<any>();
+  const { colors } = useTheme();
   const { user, userProfile, loading } = useUser();
 
   //lading state
   if (loading) {
     return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <Text style={styles.loadingText}>Loading profile...</Text>
+      <View
+        style={[
+          styles.container,
+          styles.loadingContainer,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <Text style={[styles.loadingText, { color: colors.text }]}>
+          Loading profile...
+        </Text>
       </View>
     );
   }
@@ -34,21 +43,51 @@ export function Profile() {
     : ['#newuser'];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.actionRow}>
         <Pressable
-          style={styles.iconButton}
+          style={[
+            styles.iconButton,
+            {
+              backgroundColor: colors.card,
+              borderColor: (colors as any).accent,
+              borderWidth: 1.5,
+            },
+          ]}
           onPress={() => navigation.navigate('Settings')}
         >
-          <Ionicons name="settings-outline" size={22} color="#4fc3f7" />
-          <Text style={styles.iconButtonText}>Settings</Text>
+          <Ionicons
+            name="settings-outline"
+            size={22}
+            color={(colors as any).accent}
+          />
+          <Text
+            style={[styles.iconButtonText, { color: (colors as any).accent }]}
+          >
+            Settings
+          </Text>
         </Pressable>
         <Pressable
-          style={styles.iconButton}
+          style={[
+            styles.iconButton,
+            {
+              backgroundColor: colors.card,
+              borderColor: (colors as any).accent,
+              borderWidth: 1.5,
+            },
+          ]}
           onPress={() => navigation.navigate('Friends')}
         >
-          <Ionicons name="people-outline" size={22} color="#4fc3f7" />
-          <Text style={styles.iconButtonText}>Friends</Text>
+          <Ionicons
+            name="people-outline"
+            size={22}
+            color={(colors as any).accent}
+          />
+          <Text
+            style={[styles.iconButtonText, { color: (colors as any).accent }]}
+          >
+            Friends
+          </Text>
         </Pressable>
       </View>
 
@@ -66,7 +105,11 @@ export function Profile() {
         onPress={() => navigation.navigate('EditProfile')}
         style={({ pressed }) => [
           styles.editButton,
-          { backgroundColor: pressed ? '#29b6f6' : '#4fc3f7' },
+          {
+            backgroundColor: pressed
+              ? (colors as any).accent + 'CC'
+              : (colors as any).accent,
+          },
         ]}
       >
         <Text style={styles.editButtonText}>Edit Profile</Text>
@@ -81,14 +124,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
-    // backgroundColor: '#181c24',
   },
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   loadingText: {
-    color: '#fff',
     fontSize: 16,
   },
   actionRow: {
@@ -99,7 +140,6 @@ const styles = StyleSheet.create({
   iconButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     borderRadius: 20,
     paddingVertical: 8,
     paddingHorizontal: 18,
@@ -107,7 +147,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   iconButtonText: {
-    color: '#4fc3f7',
     fontWeight: 'bold',
     marginLeft: 6,
     fontSize: 15,

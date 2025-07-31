@@ -9,6 +9,7 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 import { ProfileModal } from '../Profile/ProfileModal';
 
 export type Person = {
@@ -43,6 +44,7 @@ export function PeopleList({
 }: PeopleListProps) {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [search, setSearch] = useState('');
+  const { colors } = useTheme();
 
   const filteredPeople = people.filter(
     (person) =>
@@ -51,26 +53,37 @@ export function PeopleList({
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {showSearch && (
         <TextInput
-          style={styles.searchBar}
-          placeholder="Search people..."
-          placeholderTextColor="#aaa"
+          style={[
+            styles.searchBar,
+            {
+              backgroundColor: colors.card,
+              color: colors.text,
+              borderColor: colors.card,
+              borderWidth: 1,
+            },
+          ]}
+          placeholder="Search..."
+          placeholderTextColor={colors.text + '99'}
           value={search}
           onChangeText={setSearch}
         />
+        // ...ex
       )}
 
       {loading ? (
         <ActivityIndicator
-          color="#4fc3f7"
+          color={(colors as any).accent}
           size="large"
           style={{ marginTop: 40 }}
         />
       ) : filteredPeople.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyMessage}>{emptyMessage}</Text>
+          <Text style={[styles.emptyMessage, { color: colors.text }]}>
+            {emptyMessage}
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -80,21 +93,38 @@ export function PeopleList({
             <Pressable
               style={({ pressed }) => [
                 styles.personItem,
-                pressed && { backgroundColor: '#263043' },
+                { backgroundColor: colors.card },
+                pressed && { backgroundColor: (colors as any).accent + '22' },
               ]}
               onPress={() => setSelectedPerson(item)}
             >
-              <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
+              <Image
+                source={{ uri: item.imageUrl }}
+                style={[styles.avatar, { borderColor: (colors as any).accent }]}
+              />
               <View style={styles.info}>
-                <Text style={styles.personName}>
-                  {item.name}, <Text style={styles.personAge}>{item.age}</Text>
+                <Text style={[styles.personName, { color: colors.text }]}>
+                  {item.name},{' '}
+                  <Text
+                    style={[styles.personAge, { color: colors.text + 'BB' }]}
+                  >
+                    {item.age}
+                  </Text>
                 </Text>
                 {showDistance && (
-                  <Text style={styles.personDistance}>
+                  <Text
+                    style={[
+                      styles.personDistance,
+                      { color: (colors as any).accent },
+                    ]}
+                  >
                     {item.distance} away
                   </Text>
                 )}
-                <Text style={styles.personBio} numberOfLines={1}>
+                <Text
+                  style={[styles.personBio, { color: colors.text + '99' }]}
+                  numberOfLines={1}
+                >
                   {item.bio}
                 </Text>
               </View>
@@ -114,18 +144,16 @@ export function PeopleList({
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181c24',
     padding: 16,
   },
   searchBar: {
-    backgroundColor: '#232a36',
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    color: '#fff',
     fontSize: 16,
     marginBottom: 14,
   },
@@ -136,14 +164,12 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   emptyMessage: {
-    color: '#999',
     fontSize: 16,
     textAlign: 'center',
   },
   personItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#232a36',
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 14,
@@ -155,29 +181,24 @@ const styles = StyleSheet.create({
     borderRadius: 27,
     marginRight: 14,
     borderWidth: 2,
-    borderColor: '#4fc3f7',
   },
   info: {
     flex: 1,
     justifyContent: 'center',
   },
   personName: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 17,
   },
   personAge: {
-    color: '#b0b0b0',
     fontWeight: 'normal',
     fontSize: 16,
   },
   personDistance: {
-    color: '#4fc3f7',
     fontSize: 14,
     marginTop: 2,
   },
   personBio: {
-    color: '#b0b0b0',
     fontSize: 13,
     marginTop: 2,
   },
