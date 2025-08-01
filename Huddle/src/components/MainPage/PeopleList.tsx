@@ -20,7 +20,6 @@ export type Person = {
   distance: string;
   imageUrl: string;
   verified: boolean;
-  tags: string[];
 };
 
 interface PeopleListProps {

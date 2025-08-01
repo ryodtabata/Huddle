@@ -45,6 +45,7 @@ export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
           imageUrl: u.profileImage || null,
           verified: u.verified || false,
           tags: u.tags || [],
+          groupchats: u.groupchats || [],
         }));
         setPeople(mapped);
         console.log('Fetched people:', mapped);

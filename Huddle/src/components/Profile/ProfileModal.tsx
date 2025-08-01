@@ -17,7 +17,6 @@ type Person = {
   distance: string;
   imageUrl: string;
   verified: boolean;
-  tags: string[];
 };
 
 interface ProfileModalProps {
@@ -211,7 +210,6 @@ export function ProfileModal({
                 distance={person.distance}
                 imageUrl={person.imageUrl}
                 verified={person.verified}
-                tags={person.tags}
               />
             )}
 
