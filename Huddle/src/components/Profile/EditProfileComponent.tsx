@@ -159,7 +159,6 @@ const EditProfileComponent = () => {
     if (userProfile) {
       setName(userProfile.displayName || user?.displayName || '');
       setBio(userProfile.bio || '');
-      setHashtags(userProfile.interests || '');
       setHideAge(userProfile.hideAge || false);
       setProfileImage(userProfile.profileImage || '');
     }

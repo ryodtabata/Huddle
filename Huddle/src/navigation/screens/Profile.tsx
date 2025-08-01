@@ -38,10 +38,6 @@ export function Profile() {
   const displayBio = userProfile?.bio || 'No bio available';
   const displayImage =
     userProfile?.profileImage || 'https://i.pravatar.cc/250?u=default';
-  const displayInterests = userProfile?.interests
-    ? userProfile.interests.split(',').map((interest) => `#${interest.trim()}`)
-    : ['#newuser'];
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.actionRow}>
@@ -98,7 +94,6 @@ export function Profile() {
         distance="Nearby"
         imageUrl={displayImage}
         verified={true}
-        tags={displayInterests}
       />
 
       <Pressable

@@ -15,7 +15,6 @@ interface UserProfile {
   bio?: string;
   age?: number;
   hideAge?: boolean;
-  interests?: string;
   createdAt?: any;
   location?: any;
 }
@@ -77,7 +76,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           bio: userData.bio,
           age: userData.age,
           hideAge: userData.hideAge || false,
-          interests: userData.interests,
           createdAt: userData.createdAt,
           location: userData.location || null,
         });
@@ -129,7 +127,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             bio: userData.bio,
             age: userData.age,
             hideAge: userData.hideAge || false,
-            interests: userData.interests,
             createdAt: userData.createdAt,
             location: userData.location || null,
           });

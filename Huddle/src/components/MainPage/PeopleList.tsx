@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    paddingTop: 8, // or whatever value you prefer
+    paddingTop: 8,
   },
   searchBar: {
     borderRadius: 24,

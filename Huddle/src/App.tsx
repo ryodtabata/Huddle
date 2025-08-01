@@ -15,7 +15,7 @@ const MyLightTheme = {
   ...NavigationDefaultTheme,
   colors: {
     ...NavigationDefaultTheme.colors,
-    background: '#f0f0f0', // Light background color
+    background: '#f0f0f0',
     secondBackground: '#f0f0f0',
     card: '#e0e0e0',
     accent: '#4fc3f7',
@@ -34,7 +34,6 @@ const MyDarkTheme = {
     accent: '#09efffff',
     danger: '#ff4757',
     text: '#ffffffff',
-    // Add more as needed
   },
 };
 export function App() {

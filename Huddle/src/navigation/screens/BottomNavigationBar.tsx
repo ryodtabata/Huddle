@@ -7,6 +7,8 @@ import { Messages } from './Messages';
 
 const Tab = createBottomTabNavigator();
 
+//use
+
 const BottomNavigationBar = () => (
   <Tab.Navigator
     screenOptions={{

@@ -45,3 +45,6 @@ NOTE:
 ADD TO FIREBASECONFIG
 import { getStorage } from 'firebase/storage';
 export const storage = getStorage(app);
+
+NOTE:
+NEED TO CHANGE RULES EVENTUALLY

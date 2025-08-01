@@ -11,7 +11,6 @@ const TABS = [
 ];
 
 export function Home() {
-  const { user, userProfile, loading } = useUser();
   const [activeTab, setActiveTab] = useState('nearby');
   const { colors } = useTheme();
 

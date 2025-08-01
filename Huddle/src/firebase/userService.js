@@ -8,7 +8,6 @@ import {
 } from 'firebase/firestore';
 import { db } from './configFirebase';
 
-// Get user profile by ID, should be useful to add friends/block/unadd/report/ ... in future
 export const getUserProfile = async (userId) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));

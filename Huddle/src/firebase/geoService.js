@@ -13,7 +13,7 @@ import {
   distanceBetween,
 } from 'geofire-common';
 
-const GEOHASH_PRECISION = 6; // Adjust precision as needed
+const GEOHASH_PRECISION = 6; //Adjust precision as needed
 
 //in future i do not want to show how many km away people are just nearby, but this is handy for debugging right now
 // Set or update user location with geohash
@@ -35,10 +35,9 @@ export const setUserLocation = async (
         location: {
           latitude,
           longitude,
-          geohash, // store prefix only
+          geohash, //store prefix only
           lastUpdated: new Date(),
         },
-        isOnline: true,
         lastSeen: new Date(),
       },
       { merge: true }
@@ -50,19 +49,17 @@ export const setUserLocation = async (
   }
 };
 
-// Query for nearby users using geohash bounding box and Haversine filter
+//Query for nearby users using geohash bounding box, will this be slow with many users?
 export const getNearbyUsers = async (
   latitude,
   longitude,
-  radiusKm = 10,
+  radiusKm = 0.25, //default 25m radius
   excludeUserId
 ) => {
   const center = [latitude, longitude];
   const bounds = geohashQueryBounds(center, radiusKm);
   const promises = [];
   const usersRef = collection(db, 'users');
-
-  console.log('Query bounds:', bounds);
 
   for (const b of bounds) {
     const q = query(
@@ -86,7 +83,6 @@ export const getNearbyUsers = async (
     totalDocs += snap.docs.length;
     for (const docSnap of snap.docs) {
       const data = docSnap.data();
-      console.log('Doc:', docSnap.id, data); // <-- Log each doc returned
       if (
         (excludeUserId === null || docSnap.id !== excludeUserId) &&
         data.location &&
@@ -111,7 +107,6 @@ export const getNearbyUsers = async (
     new Map(matchingDocs.map((u) => [u.uid, u])).values()
   );
 
-  // Sort by distance
   uniqueUsers.sort((a, b) => a.distance - b.distance);
   return uniqueUsers;
 };

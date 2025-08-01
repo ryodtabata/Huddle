@@ -16,7 +16,7 @@ import {
 import { db } from './configFirebase';
 import { areUsersFriends } from './friendsService';
 
-//not sure if this works yet
+//not sure if this works yet, no it does not....
 
 // Create or get a conversation between two users (only if they are friends)
 export const createConversation = async (

@@ -32,7 +32,7 @@ export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
         const users = await getNearbyUsers(
           userProfile.location.latitude,
           userProfile.location.longitude,
-          10000000, // maxing this out right now for dev reasons
+          50, // trying to get withen 50m radius
           userProfile.uid
         );
 
