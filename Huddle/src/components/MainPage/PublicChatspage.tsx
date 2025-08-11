@@ -27,6 +27,8 @@ const PublicChatsPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { colors } = useTheme();
 
+  //update all of this too
+
   useEffect(() => {
     if (user && userProfile && userProfile.location) {
       autoJoinProximityChat();

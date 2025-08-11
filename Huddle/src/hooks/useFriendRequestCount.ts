@@ -6,6 +6,8 @@ export function useFriendRequestCount(refreshTrigger?: number) {
   const { user } = useUser();
   const [count, setCount] = useState(0);
 
+  //this is shit
+
   useEffect(() => {
     const fetchCount = async () => {
       if (!user?.uid) {

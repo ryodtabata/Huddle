@@ -16,6 +16,8 @@ import {
 } from '../../firebase/friendsService';
 import { useUser } from '../../store/UserContext';
 
+//THIS DOES NOT WORK RIGHT NOW!
+
 interface FriendRequest {
   id: string;
   fromUserId: string;

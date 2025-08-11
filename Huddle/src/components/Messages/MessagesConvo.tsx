@@ -22,7 +22,7 @@ import {
 import { useUser } from '../../store/UserContext';
 import { useTheme } from '@react-navigation/native';
 
-const screenWidth = Dimensions.get('window').width;
+//dont thik this is even being uses rn haha
 
 const MessagesConvo = (props: any) => {
   const { item, onClose, conversationId: propConversationId } = props;

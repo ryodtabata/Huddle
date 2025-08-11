@@ -13,10 +13,8 @@ import {
   distanceBetween,
 } from 'geofire-common';
 
-const GEOHASH_PRECISION = 6; //Adjust precision as needed
+const GEOHASH_PRECISION = 7; //might need to mess with this later
 
-//in future i do not want to show how many km away people are just nearby, but this is handy for debugging right now
-// Set or update user location with geohash
 export const setUserLocation = async (
   userId,
   latitude,
@@ -35,8 +33,7 @@ export const setUserLocation = async (
         location: {
           latitude,
           longitude,
-          geohash, //store prefix only
-          lastUpdated: new Date(),
+          geohash,
         },
         lastSeen: new Date(),
       },
@@ -48,65 +45,82 @@ export const setUserLocation = async (
     return { success: false, error };
   }
 };
-
-//Query for nearby users using geohash bounding box, will this be slow with many users?
+//chat "optimized" this but it might be shit, also only want to fetch reccerntly online popel, AND users able to change thier own location/distances which daddy dont like
 export const getNearbyUsers = async (
   latitude,
   longitude,
-  radiusKm = 0.25, //default 25m radius
+  radiusMeters,
   excludeUserId
 ) => {
-  const center = [latitude, longitude];
-  const bounds = geohashQueryBounds(center, radiusKm);
-  const promises = [];
-  const usersRef = collection(db, 'users');
+  try {
+    const center = [latitude, longitude];
+    const radiusKm = radiusMeters / 1000; // Convert to km for geofire-common
+    const bounds = geohashQueryBounds(center, radiusKm);
 
-  for (const b of bounds) {
-    const q = query(
-      usersRef,
-      where('location.geohash', '>=', b[0]),
-      where('location.geohash', '<=', b[1])
+    const usersRef = collection(db, 'users');
+
+    // **OPTIMIZATION 1: Parallel queries instead of sequential**
+    const queryPromises = bounds.map(([start, end]) =>
+      getDocs(
+        query(
+          usersRef,
+          where('location.geohash', '>=', start),
+          where('location.geohash', '<=', end)
+          // **OPTIMIZATION 2: Add time filter to get active users only**
+        )
+      )
     );
-    const snap = await getDocs(q);
-    console.log(`Bound ${b[0]} - ${b[1]}: ${snap.docs.length} docs`);
-    snap.docs.forEach((docSnap) => {
-      console.log('Doc:', docSnap.id, docSnap.data());
-    });
-    promises.push(Promise.resolve(snap));
-  }
 
-  const snapshots = await Promise.all(promises);
-  let totalDocs = 0;
-  const matchingDocs = [];
+    const snapshots = await Promise.all(queryPromises);
 
-  for (const snap of snapshots) {
-    totalDocs += snap.docs.length;
-    for (const docSnap of snap.docs) {
-      const data = docSnap.data();
-      if (
-        (excludeUserId === null || docSnap.id !== excludeUserId) &&
-        data.location &&
-        typeof data.location.latitude === 'number' &&
-        typeof data.location.longitude === 'number'
-      ) {
-        const dist = distanceBetween(
-          [latitude, longitude],
-          [data.location.latitude, data.location.longitude]
-        );
-        if (dist <= radiusKm) {
-          matchingDocs.push({
-            uid: docSnap.id,
+    // **OPTIMIZATION 3: Use Set for deduplication (faster than Map)**
+    const seenUsers = new Set();
+    const matchingUsers = [];
+
+    for (const snapshot of snapshots) {
+      for (const doc of snapshot.docs) {
+        // Skip if already processed
+        if (seenUsers.has(doc.id)) continue;
+        seenUsers.add(doc.id);
+
+        // Skip excluded user
+        if (doc.id === excludeUserId) continue;
+
+        const data = doc.data();
+        if (!data.location?.latitude || !data.location?.longitude) continue;
+
+        // **OPTIMIZATION 4: Use squared distance for initial filtering (faster)**
+        const latDiff = data.location.latitude - latitude;
+        const lngDiff = data.location.longitude - longitude;
+        const approxDistSq = latDiff * latDiff + lngDiff * lngDiff;
+        const maxDistSq = (radiusKm / 111) * (radiusKm / 111); // Rough conversion
+
+        // Quick rejection of obviously far users
+        if (approxDistSq > maxDistSq * 4) continue;
+
+        // Precise distance calculation only for potential matches
+        const preciseDistance = distanceBetween(center, [
+          data.location.latitude,
+          data.location.longitude,
+        ]);
+
+        if (preciseDistance <= radiusKm) {
+          matchingUsers.push({
+            uid: doc.id,
             ...data,
-            distance: dist,
+            distance: preciseDistance * 1000, // Convert back to meters
           });
         }
       }
     }
-  }
-  const uniqueUsers = Array.from(
-    new Map(matchingDocs.map((u) => [u.uid, u])).values()
-  );
 
-  uniqueUsers.sort((a, b) => a.distance - b.distance);
-  return uniqueUsers;
+    // Sort by distance
+    matchingUsers.sort((a, b) => a.distance - b.distance);
+
+    console.log(`Found ${matchingUsers.length} users within ${radiusMeters}m`);
+    return matchingUsers;
+  } catch (error) {
+    console.error('Error finding nearby users:', error);
+    return [];
+  }
 };

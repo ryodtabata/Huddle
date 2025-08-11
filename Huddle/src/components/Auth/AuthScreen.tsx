@@ -19,11 +19,9 @@ import {
 } from '../../firebase/authFunctions';
 import { useTheme } from '@react-navigation/native';
 
-// Create a form component that will render as <form> on web
 const FormView =
   Platform.OS === 'web'
     ? ({ children, onSubmit, style, ...props }: any) => {
-        // Filter out React Native specific props that don't belong on HTML form elements
         const { pointerEvents, ...webProps } = props;
         const webStyle = {
           ...style,
@@ -62,7 +60,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   const { colors } = useTheme();
 
   const handleAuth = async () => {
-    setErrorMessage(''); // Clear previous errors
+    setErrorMessage('');
 
     if (!email || !password) {
       setErrorMessage('Please fill in all required fields');
@@ -80,6 +78,12 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       }
       if (password.length < 6) {
         setErrorMessage('Password must be at least 6 characters');
+        return;
+      }
+      if (!properPassword(password)) {
+        setErrorMessage(
+          'Password must be at least 8 characters long and include at least one uppercase letter, one number, and one special character.'
+        );
         return;
       }
     }
@@ -103,7 +107,6 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
     } catch (error) {
       console.error('Authentication error:', error);
 
-      // Handle specific Firebase errors
       let errorMsg = 'Authentication failed. Please try again.';
 
       if (
@@ -134,15 +137,29 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           errorMsg = 'Too many failed attempts. Please try again later.';
         }
       }
-
-      setErrorMessage(errorMsg); // Set error message instead of Alert
+      setErrorMessage(errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const properPassword = (password: string) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasnumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    return (
+      password.length >= minLength &&
+      hasUpperCase &&
+      hasnumber &&
+      hasSpecialChar
+    );
+  };
+
+  //THIS DOES NOT WORK AND NEED TO BE ADDED EVENTUALLY
   const handleGoogleSignIn = async () => {
-    setErrorMessage(''); // Clear previous errors
+    setErrorMessage('');
     setIsLoading(true);
     try {
       await signInWithGoogle();
@@ -155,8 +172,6 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       setIsLoading(false);
     }
   };
-
-  console.log(colors);
 
   return (
     <KeyboardAvoidingView
@@ -187,7 +202,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                 styles.inputContainer,
                 {
                   backgroundColor: colors.card,
-                  borderColor: colors.card, // or '#ccc' for a fixed grey
+                  borderColor: colors.card,
                   borderWidth: 1,
                 },
               ]}
@@ -200,7 +215,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
-                placeholder="Full Name"
+                placeholder="Name"
                 placeholderTextColor={colors.text + '99'}
                 value={name}
                 onChangeText={setName}
@@ -215,7 +230,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               styles.inputContainer,
               {
                 backgroundColor: colors.card,
-                borderColor: colors.card, // or '#ccc'
+                borderColor: colors.card,
                 borderWidth: 1,
               },
             ]}
@@ -245,7 +260,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               styles.inputContainer,
               {
                 backgroundColor: colors.card,
-                borderColor: colors.card, // or '#ccc'
+                borderColor: colors.card,
                 borderWidth: 1,
               },
             ]}
@@ -275,7 +290,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                 styles.inputContainer,
                 {
                   backgroundColor: colors.card,
-                  borderColor: colors.card, // or '#ccc'
+                  borderColor: colors.card,
                   borderWidth: 1,
                 },
               ]}
@@ -393,7 +408,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     fontWeight: '500',
-    // color is set inline
   },
   container: {
     flex: 1,
@@ -412,12 +426,10 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     marginBottom: 8,
-    // color is set inline
   },
   subtitle: {
     fontSize: 18,
     textAlign: 'center',
-    // color is set inline
   },
   form: {
     marginBottom: 30,
@@ -432,7 +444,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 16,
     paddingVertical: 4,
-    // backgroundColor is set inline
   },
   inputIcon: {
     marginRight: 12,
@@ -441,7 +452,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     paddingVertical: 16,
-    // color is set inline
   },
   authButton: {
     borderRadius: 12,
@@ -449,12 +459,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 16,
-    // backgroundColor is set inline
   },
   authButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    // color is set inline
   },
   googleButton: {
     borderRadius: 12,
@@ -463,8 +471,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 16,
-    backgroundColor: '#e60f21ff', // Google's blue color
-    // backgroundColor is always Google's color, so leave as is
+    backgroundColor: '#e60f21ff',
   },
   googleIcon: {
     marginRight: 8,
@@ -483,7 +490,6 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     fontSize: 16,
-    // color is set inline
   },
   toggleContainer: {
     flexDirection: 'row',
@@ -493,11 +499,9 @@ const styles = StyleSheet.create({
   toggleText: {
     fontSize: 16,
     marginRight: 4,
-    // color is set inline
   },
   toggleLink: {
     fontSize: 16,
     fontWeight: 'bold',
-    // color is set inline
   },
 });

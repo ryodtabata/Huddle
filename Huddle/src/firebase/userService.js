@@ -1,11 +1,3 @@
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  getDoc,
-} from 'firebase/firestore';
 import { db } from './configFirebase';
 
 export const getUserProfile = async (userId) => {
@@ -23,7 +15,6 @@ export const getUserProfile = async (userId) => {
         bio: data.bio,
         age: data.age,
         hideAge: data.hideAge,
-        interests: data.interests,
         location: data.location,
       };
     }

@@ -8,6 +8,8 @@ interface NearbyPeopleProps {
   onMessage?: (person: Person) => void;
 }
 
+//need to add some secuirty to this, dont wnat thier exact location
+
 export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
   const { userProfile } = useUser();
   const [people, setPeople] = useState<Person[]>([]);
@@ -32,7 +34,7 @@ export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
         const users = await getNearbyUsers(
           userProfile.location.latitude,
           userProfile.location.longitude,
-          50, // trying to get withen 50m radius
+          65, // trying to get withen 50m radius, THIS NEEDS TO BE TESTED AND CHANGED AS NEEDED
           userProfile.uid
         );
 
@@ -41,11 +43,9 @@ export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
           name: u.displayName || 'Unknown',
           age: u.age || 0,
           bio: u.bio || '',
-          distance: u.distance ? `${u.distance.toFixed(1)} km` : '',
+          distance: 'nearby',
           imageUrl: u.profileImage || null,
           verified: u.verified || false,
-          tags: u.tags || [],
-          groupchats: u.groupchats || [],
         }));
         setPeople(mapped);
         console.log('Fetched people:', mapped);
@@ -57,7 +57,7 @@ export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
     };
 
     fetchNearbyPeople();
-    intervalId = setInterval(fetchNearbyPeople, 300000); // Fetch every 5 minutes
+    intervalId = setInterval(fetchNearbyPeople, 300000); // Fetch every 5 minutes, again need to update this accoiurdingly
 
     return () => clearInterval(intervalId);
   }, [userProfile?.location?.latitude, userProfile?.location?.longitude]);

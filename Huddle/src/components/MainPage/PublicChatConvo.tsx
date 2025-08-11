@@ -19,7 +19,8 @@ import {
 } from '../../firebase/publicChatService';
 import { useUser } from '../../store/UserContext';
 import { useTheme } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+//this component displays a public group chat
 
 const PublicChatConvo = (props: any) => {
   const { chat, onClose } = props;

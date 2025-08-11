@@ -69,7 +69,6 @@ export function PeopleList({
           value={search}
           onChangeText={setSearch}
         />
-        // ...ex
       )}
 
       {loading ? (
@@ -118,7 +117,7 @@ export function PeopleList({
                       { color: (colors as any).accent },
                     ]}
                   >
-                    {item.distance} away
+                    {item.distance}
                   </Text>
                 )}
                 <Text

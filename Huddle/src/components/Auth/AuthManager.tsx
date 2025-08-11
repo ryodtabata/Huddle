@@ -11,8 +11,8 @@ export function AuthManager({ children }: AuthManagerProps) {
   const { user, loading } = useUser();
 
   const handleAuthSuccess = () => {
-    console.log('Auth success');
-    // User context will handle the rest
+    console.log('Authentication successful!');
+    //user context will handle the rest
   };
 
   if (loading) {
@@ -28,7 +28,7 @@ export function AuthManager({ children }: AuthManagerProps) {
     return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
   }
 
-  // User is authenticated - show home page
+  //user is authenticated: show home page
   return <>{children}</>;
 }
 
@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    // backgroundColor: '#181c24',
   },
   loadingText: {
     fontSize: 36,

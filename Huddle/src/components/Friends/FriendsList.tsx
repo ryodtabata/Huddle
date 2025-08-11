@@ -12,6 +12,7 @@ export function FriendsList({ onMessage }: FriendsListProps) {
   const [friends, setFriends] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
 
+  //THIS DOES NOT WORK
   useEffect(() => {
     const fetchFriends = async () => {
       if (!user?.uid) {

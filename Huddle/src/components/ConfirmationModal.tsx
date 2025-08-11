@@ -73,13 +73,12 @@ export function ConfirmationModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    // backgroundColor: 'rgba(0, 0, 0, 0.5)',
+
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   container: {
-    // backgroundColor: '#232a36',
     borderRadius: 16,
     padding: 24,
     width: '100%',
@@ -113,9 +112,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cancelButton: {
-    // backgroundColor: '#4a5568',
-  },
+  cancelButton: {},
   cancelButtonText: {
     color: '#fff',
     fontSize: 16,

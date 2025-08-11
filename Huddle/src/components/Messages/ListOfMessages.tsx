@@ -17,6 +17,8 @@ import {
 import { useUser } from '../../store/UserContext';
 import { useTheme } from '@react-navigation/native';
 
+//WANT TO UPDATE ALL OF THIS TOO
+
 const ListOfMessages = () => {
   const { user, userProfile } = useUser();
   const [search, setSearch] = useState('');
