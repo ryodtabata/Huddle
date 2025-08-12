@@ -8,7 +8,7 @@ interface NearbyPeopleProps {
   onMessage?: (person: Person) => void;
 }
 
-//need to add some secuirty to this, dont wnat thier exact location
+//need to add some secuirty to this, dont want thier exact location
 
 export function NearbyPeople({ onMessage }: NearbyPeopleProps) {
   const { userProfile } = useUser();

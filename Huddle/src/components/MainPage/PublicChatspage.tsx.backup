@@ -14,7 +14,31 @@ import {
 import { useUser } from '../../store/UserContext';
 import {
   getAvailableLocationGroups,
-  getUserLocationGroups,
+  createLocationBasedGroupChat,
+  joinNearbyGroupChat,
+  leaveLocationGroupChat,
+} from './makeGroupChats';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import PublicChatConvo from './PublicChatConvo';
+import { useTheme } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  Alert,
+  RefreshControl,
+  Modal,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
+import { useUser } from '../../store/UserContext';
+import {
+  getAvailableLocationGroups,
   createLocationGroupChat,
   findAndJoinLocationGroupChats,
   leaveLocationGroupChat,
@@ -26,7 +50,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PublicChatsPage = () => {
   const { user, userProfile } = useUser();
-  const [myGroups, setMyGroups] = useState<any[]>([]);
   const [availableGroups, setAvailableGroups] = useState<any[]>([]);
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -38,7 +61,6 @@ const PublicChatsPage = () => {
 
   useEffect(() => {
     if (user && userProfile && userProfile.location) {
-      loadUserGroups();
       loadAvailableGroups();
       autoJoinNearbyGroups();
     }
@@ -59,22 +81,8 @@ const PublicChatsPage = () => {
     }
   };
 
-  const loadUserGroups = async () => {
-    if (!user || !userProfile?.location) return;
-    try {
-      const groups = await getUserLocationGroups({
-        id: user.uid,
-        name: userProfile.displayName || user.email || 'Unknown User',
-        location: userProfile.location,
-      });
-      setMyGroups(groups);
-    } catch (error) {
-      console.error('Error loading user groups:', error);
-    }
-  };
-
   const loadAvailableGroups = async () => {
-    if (!user || !userProfile?.location) return;
+    if (!userProfile?.location) return;
     try {
       const groups = await getAvailableLocationGroups({
         id: user.uid,
@@ -90,7 +98,6 @@ const PublicChatsPage = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await loadUserGroups();
       await loadAvailableGroups();
     } catch (error) {
       console.error('Error refreshing groups:', error);
@@ -101,22 +108,6 @@ const PublicChatsPage = () => {
   };
 
   const handleCreateGroup = async () => {
-    console.log('=== handleCreateGroup START ===');
-    console.log('handleCreateGroup called');
-    console.log('User:', user);
-    console.log('UserProfile:', userProfile);
-
-    if (!user || !userProfile?.location) {
-      console.log('Missing user or location');
-      console.log('User exists:', !!user);
-      console.log('UserProfile exists:', !!userProfile);
-      console.log('Location exists:', !!userProfile?.location);
-      console.log('Location details:', userProfile?.location);
-      return;
-    }
-
-    console.log('All checks passed, continuing...');
-
     if (!groupName.trim()) {
       Alert.alert('Error', 'Please enter a group name');
       return;
@@ -128,16 +119,8 @@ const PublicChatsPage = () => {
       return;
     }
 
-    console.log('About to create group with:', {
-      groupName: groupName.trim(),
-      radius,
-      userLocation: userProfile.location,
-      userLocationLatitude: userProfile.location?.latitude,
-      userLocationLongitude: userProfile.location?.longitude,
-    });
-
     try {
-      const groupId = await createLocationGroupChat(
+      await createLocationGroupChat(
         {
           id: user.uid,
           name: userProfile.displayName || user.email || 'Unknown User',
@@ -146,29 +129,19 @@ const PublicChatsPage = () => {
         groupName.trim(),
         radius
       );
-
-      console.log('Group created successfully with ID:', groupId);
-
+      
       setShowCreateModal(false);
       setGroupName('');
       setGroupRadius('100');
-      loadUserGroups();
       loadAvailableGroups();
       Alert.alert('Success', 'Group created successfully!');
     } catch (error) {
       console.error('Error creating group:', error);
-      Alert.alert(
-        'Error',
-        `Failed to create group: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      Alert.alert('Error', 'Failed to create group');
     }
   };
 
   const handleJoinGroup = async (group: any) => {
-    if (!user || !userProfile?.location) return;
-
     try {
       await findAndJoinLocationGroupChats({
         id: user.uid,
@@ -196,29 +169,28 @@ const PublicChatsPage = () => {
           <Text style={[styles.groupName, { color: colors.text }]}>
             {item.name}
           </Text>
-          <Text
-            style={[styles.groupDetails, { color: (colors as any).accent }]}
-          >
-            {item.participantCount} people • {Math.round(item.distanceFromUser)}
-            m away
+          <Text style={[styles.groupDetails, { color: (colors as any).accent }]}>
+            {item.participantCount} people • {Math.round(item.distanceFromUser)}m away
           </Text>
-          <Text
-            style={[styles.groupDescription, { color: colors.text + '99' }]}
-          >
-            Radius: {item.radius}m • Created{' '}
-            {new Date(item.createdAt?.seconds * 1000).toLocaleDateString()}
+          <Text style={[styles.groupDescription, { color: colors.text + '99' }]}>
+            Radius: {item.radius}m • Created {new Date(item.createdAt?.seconds * 1000).toLocaleDateString()}
           </Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color={colors.text + '99'} />
+        <TouchableOpacity
+          style={[styles.joinButton, { backgroundColor: (colors as any).accent }]}
+          onPress={() => handleJoinGroup(item)}
+        >
+          <Text style={[styles.joinButtonText, { color: 'white' }]}>
+            Join
+          </Text>
+        </TouchableOpacity>
       </Pressable>
     </View>
   );
 
   if (!userProfile?.location) {
     return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: colors.background }]}
-      >
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.noLocationContainer}>
           <Ionicons
             name="location-outline"
@@ -229,8 +201,7 @@ const PublicChatsPage = () => {
             Location Required
           </Text>
           <Text style={[styles.noLocationText, { color: colors.text + '99' }]}>
-            Enable location services to join location-based group chats in your
-            area.
+            Enable location services to join location-based group chats in your area.
           </Text>
         </View>
       </SafeAreaView>
@@ -238,24 +209,17 @@ const PublicChatsPage = () => {
   }
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { borderBottomColor: colors.card }]}>
         <View style={styles.headerTop}>
           <View>
-            <Text style={[styles.title, { color: colors.text }]}>
-              My Location Groups
-            </Text>
+            <Text style={[styles.title, { color: colors.text }]}>Location Groups</Text>
             <Text style={[styles.subtitle, { color: colors.text + '99' }]}>
-              Your location-based group chats
+              Join or create location-based group chats
             </Text>
           </View>
           <TouchableOpacity
-            style={[
-              styles.createButton,
-              { backgroundColor: (colors as any).accent },
-            ]}
+            style={[styles.createButton, { backgroundColor: (colors as any).accent }]}
             onPress={() => setShowCreateModal(true)}
           >
             <Ionicons name="add" size={24} color="white" />
@@ -264,7 +228,7 @@ const PublicChatsPage = () => {
       </View>
 
       <FlatList
-        data={myGroups}
+        data={availableGroups}
         keyExtractor={(item) => item.id}
         renderItem={renderGroupItem}
         refreshControl={
@@ -285,12 +249,12 @@ const PublicChatsPage = () => {
               No Location Groups
             </Text>
             <Text style={[styles.emptyText, { color: colors.text + '99' }]}>
-              No groups found. Create one to get started!
+              No groups available in your area. Create one or pull to refresh!
             </Text>
           </View>
         }
         contentContainerStyle={
-          myGroups.length === 0 ? styles.emptyList : styles.list
+          availableGroups.length === 0 ? styles.emptyList : styles.list
         }
         style={{ flex: 1, width: '100%' }}
       />
@@ -303,12 +267,7 @@ const PublicChatsPage = () => {
         onRequestClose={() => setShowCreateModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: colors.background },
-            ]}
-          >
+          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: colors.text }]}>
                 Create Location Group
@@ -319,28 +278,18 @@ const PublicChatsPage = () => {
             </View>
 
             <View style={styles.modalBody}>
-              <Text style={[styles.inputLabel, { color: colors.text }]}>
-                Group Name
-              </Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Group Name</Text>
               <TextInput
-                style={[
-                  styles.textInput,
-                  { borderColor: colors.card, color: colors.text },
-                ]}
+                style={[styles.textInput, { borderColor: colors.card, color: colors.text }]}
                 value={groupName}
                 onChangeText={setGroupName}
                 placeholder="Enter group name"
                 placeholderTextColor={colors.text + '66'}
               />
 
-              <Text style={[styles.inputLabel, { color: colors.text }]}>
-                Radius (meters)
-              </Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Radius (meters)</Text>
               <TextInput
-                style={[
-                  styles.textInput,
-                  { borderColor: colors.card, color: colors.text },
-                ]}
+                style={[styles.textInput, { borderColor: colors.card, color: colors.text }]}
                 value={groupRadius}
                 onChangeText={setGroupRadius}
                 placeholder="100"
@@ -362,14 +311,8 @@ const PublicChatsPage = () => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[
-                  styles.modalButton,
-                  { backgroundColor: (colors as any).accent },
-                ]}
-                onPress={() => {
-                  console.log('Create button pressed!');
-                  handleCreateGroup();
-                }}
+                style={[styles.modalButton, { backgroundColor: (colors as any).accent }]}
+                onPress={handleCreateGroup}
               >
                 <Text style={[styles.modalButtonText, { color: 'white' }]}>
                   Create
@@ -397,14 +340,9 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
-    paddingTop: 20,
+    paddingTop: 40,
     borderBottomWidth: 1,
     width: '100%',
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
   },
   title: {
     fontSize: 28,
@@ -414,31 +352,21 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
   },
-  createButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   list: {
     padding: 0,
   },
   emptyList: {
     flex: 1,
   },
-  groupItem: {
-    borderBottomWidth: 1,
-    width: '100%',
-  },
-  groupContent: {
+  chatItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 20,
+    borderBottomWidth: 1,
     width: '100%',
   },
-  groupIcon: {
+  chatIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
@@ -446,29 +374,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  groupInfo: {
+  chatInfo: {
     flex: 1,
   },
-  groupName: {
+  chatName: {
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 2,
   },
-  groupDetails: {
+  chatDetails: {
     fontSize: 14,
     marginBottom: 4,
   },
-  groupDescription: {
-    fontSize: 12,
-  },
-  joinButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  joinButtonText: {
+  lastMessage: {
     fontSize: 14,
-    fontWeight: '600',
   },
   noLocationContainer: {
     flex: 1,
@@ -504,65 +423,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 24,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  modalContent: {
-    width: '100%',
-    maxWidth: 400,
-    borderRadius: 12,
-    padding: 24,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  modalBody: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  helperText: {
-    fontSize: 14,
-    marginTop: -12,
-    marginBottom: 16,
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
 

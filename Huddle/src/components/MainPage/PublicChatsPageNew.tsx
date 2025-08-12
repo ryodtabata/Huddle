@@ -14,7 +14,6 @@ import {
 import { useUser } from '../../store/UserContext';
 import {
   getAvailableLocationGroups,
-  getUserLocationGroups,
   createLocationGroupChat,
   findAndJoinLocationGroupChats,
   leaveLocationGroupChat,
@@ -26,7 +25,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PublicChatsPage = () => {
   const { user, userProfile } = useUser();
-  const [myGroups, setMyGroups] = useState<any[]>([]);
   const [availableGroups, setAvailableGroups] = useState<any[]>([]);
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -38,7 +36,6 @@ const PublicChatsPage = () => {
 
   useEffect(() => {
     if (user && userProfile && userProfile.location) {
-      loadUserGroups();
       loadAvailableGroups();
       autoJoinNearbyGroups();
     }
@@ -59,20 +56,6 @@ const PublicChatsPage = () => {
     }
   };
 
-  const loadUserGroups = async () => {
-    if (!user || !userProfile?.location) return;
-    try {
-      const groups = await getUserLocationGroups({
-        id: user.uid,
-        name: userProfile.displayName || user.email || 'Unknown User',
-        location: userProfile.location,
-      });
-      setMyGroups(groups);
-    } catch (error) {
-      console.error('Error loading user groups:', error);
-    }
-  };
-
   const loadAvailableGroups = async () => {
     if (!user || !userProfile?.location) return;
     try {
@@ -90,7 +73,6 @@ const PublicChatsPage = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await loadUserGroups();
       await loadAvailableGroups();
     } catch (error) {
       console.error('Error refreshing groups:', error);
@@ -101,21 +83,7 @@ const PublicChatsPage = () => {
   };
 
   const handleCreateGroup = async () => {
-    console.log('=== handleCreateGroup START ===');
-    console.log('handleCreateGroup called');
-    console.log('User:', user);
-    console.log('UserProfile:', userProfile);
-
-    if (!user || !userProfile?.location) {
-      console.log('Missing user or location');
-      console.log('User exists:', !!user);
-      console.log('UserProfile exists:', !!userProfile);
-      console.log('Location exists:', !!userProfile?.location);
-      console.log('Location details:', userProfile?.location);
-      return;
-    }
-
-    console.log('All checks passed, continuing...');
+    if (!user || !userProfile?.location) return;
 
     if (!groupName.trim()) {
       Alert.alert('Error', 'Please enter a group name');
@@ -128,16 +96,8 @@ const PublicChatsPage = () => {
       return;
     }
 
-    console.log('About to create group with:', {
-      groupName: groupName.trim(),
-      radius,
-      userLocation: userProfile.location,
-      userLocationLatitude: userProfile.location?.latitude,
-      userLocationLongitude: userProfile.location?.longitude,
-    });
-
     try {
-      const groupId = await createLocationGroupChat(
+      await createLocationGroupChat(
         {
           id: user.uid,
           name: userProfile.displayName || user.email || 'Unknown User',
@@ -147,22 +107,14 @@ const PublicChatsPage = () => {
         radius
       );
 
-      console.log('Group created successfully with ID:', groupId);
-
       setShowCreateModal(false);
       setGroupName('');
       setGroupRadius('100');
-      loadUserGroups();
       loadAvailableGroups();
       Alert.alert('Success', 'Group created successfully!');
     } catch (error) {
       console.error('Error creating group:', error);
-      Alert.alert(
-        'Error',
-        `Failed to create group: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      Alert.alert('Error', 'Failed to create group');
     }
   };
 
@@ -209,7 +161,15 @@ const PublicChatsPage = () => {
             {new Date(item.createdAt?.seconds * 1000).toLocaleDateString()}
           </Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color={colors.text + '99'} />
+        <TouchableOpacity
+          style={[
+            styles.joinButton,
+            { backgroundColor: (colors as any).accent },
+          ]}
+          onPress={() => handleJoinGroup(item)}
+        >
+          <Text style={[styles.joinButtonText, { color: 'white' }]}>Join</Text>
+        </TouchableOpacity>
       </Pressable>
     </View>
   );
@@ -245,10 +205,10 @@ const PublicChatsPage = () => {
         <View style={styles.headerTop}>
           <View>
             <Text style={[styles.title, { color: colors.text }]}>
-              My Location Groups
+              Location Groups
             </Text>
             <Text style={[styles.subtitle, { color: colors.text + '99' }]}>
-              Your location-based group chats
+              Join or create location-based group chats
             </Text>
           </View>
           <TouchableOpacity
@@ -264,7 +224,7 @@ const PublicChatsPage = () => {
       </View>
 
       <FlatList
-        data={myGroups}
+        data={availableGroups}
         keyExtractor={(item) => item.id}
         renderItem={renderGroupItem}
         refreshControl={
@@ -285,12 +245,12 @@ const PublicChatsPage = () => {
               No Location Groups
             </Text>
             <Text style={[styles.emptyText, { color: colors.text + '99' }]}>
-              No groups found. Create one to get started!
+              No groups available in your area. Create one or pull to refresh!
             </Text>
           </View>
         }
         contentContainerStyle={
-          myGroups.length === 0 ? styles.emptyList : styles.list
+          availableGroups.length === 0 ? styles.emptyList : styles.list
         }
         style={{ flex: 1, width: '100%' }}
       />
@@ -366,10 +326,7 @@ const PublicChatsPage = () => {
                   styles.modalButton,
                   { backgroundColor: (colors as any).accent },
                 ]}
-                onPress={() => {
-                  console.log('Create button pressed!');
-                  handleCreateGroup();
-                }}
+                onPress={handleCreateGroup}
               >
                 <Text style={[styles.modalButtonText, { color: 'white' }]}>
                   Create

@@ -11,6 +11,7 @@ import {
   Platform,
   Alert,
   Dimensions,
+  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -105,7 +106,7 @@ const MessagesConvo = (props: any) => {
             style={[
               styles.headerBar,
               {
-                paddingTop: insets.top,
+                paddingTop: insets.top + 8,
                 backgroundColor: colors.card,
                 borderBottomColor: colors.border || colors.card,
               },
@@ -228,10 +229,11 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headerBar: {
-    height: 56,
+    minHeight: 56,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
+    paddingBottom: 8,
     borderBottomWidth: 1,
     width: '100%',
   },

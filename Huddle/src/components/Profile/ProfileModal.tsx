@@ -8,6 +8,7 @@ import {
   areUsersFriends,
 } from '../../firebase/friendsService';
 import { useUser } from '../../store/UserContext';
+import { useTheme } from '@react-navigation/native';
 
 type Person = {
   id: string;
@@ -26,8 +27,6 @@ interface ProfileModalProps {
   isFriend?: boolean;
   onMessage?: (person: Person) => void;
 }
-
-//need to make block and report and add friend fucntionality
 export function ProfileModal({
   visible,
   person,
@@ -36,8 +35,10 @@ export function ProfileModal({
   onMessage,
 }: ProfileModalProps) {
   const { user, userProfile } = useUser();
+  const { colors } = useTheme();
   const [isActuallyFriend, setIsActuallyFriend] = useState(isFriend);
   const [checkingFriendship, setCheckingFriendship] = useState(false);
+  const [processingAction, setProcessingAction] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationData, setConfirmationData] = useState<{
     title: string;
@@ -46,6 +47,9 @@ export function ProfileModal({
     isDestructive: boolean;
   } | null>(null);
 
+  const isDarkMode =
+    colors.background === '#000000' || colors.background.includes('#1');
+
   // Check if users are actually friends when modal opens
   useEffect(() => {
     const checkFriendshipStatus = async () => {
@@ -53,7 +57,9 @@ export function ProfileModal({
 
       setCheckingFriendship(true);
       try {
+        console.log('Checking friendship between:', user.uid, 'and', person.id);
         const friendshipStatus = await areUsersFriends(user.uid, person.id);
+        console.log('Friendship status:', friendshipStatus);
         setIsActuallyFriend(friendshipStatus);
       } catch (error) {
         console.error('Error checking friendship status:', error);
@@ -64,7 +70,7 @@ export function ProfileModal({
     };
 
     checkFriendshipStatus();
-  }, [visible, person, user?.uid]);
+  }, [visible, person, user?.uid, isFriend]);
 
   const handleAddFriend = async () => {
     console.log('=== HANDLE ADD FRIEND START ===');
@@ -100,8 +106,12 @@ export function ProfileModal({
   const handleConfirmAction = async () => {
     console.log('User confirmed action');
     setShowConfirmation(false);
+    setProcessingAction(true);
 
-    if (!person || !user) return;
+    if (!person || !user) {
+      setProcessingAction(false);
+      return;
+    }
 
     try {
       if (isActuallyFriend) {
@@ -116,6 +126,7 @@ export function ProfileModal({
       } else {
         // Send friend request
         console.log('About to send friend request to:', person.name);
+        console.log('User ID:', user.uid, 'Person ID:', person.id);
 
         await sendFriendRequest(
           user.uid,
@@ -128,9 +139,13 @@ export function ProfileModal({
         Alert.alert('Success', `Friend request sent to ${person.name}!`);
       }
       // Don't close modal automatically - let user see the state change
-    } catch (error) {
+    } catch (error: any) {
       console.log('Error with friend action:', error);
-      Alert.alert('Error', 'Failed to complete action. Please try again.');
+      const errorMessage =
+        error?.message || 'Failed to complete action. Please try again.';
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setProcessingAction(false);
     }
   };
 
@@ -200,8 +215,22 @@ export function ProfileModal({
         transparent={true}
         onRequestClose={onClose}
       >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
+        <View
+          style={[
+            styles.modalBackground,
+            {
+              backgroundColor: isDarkMode
+                ? 'rgba(0,0,0,0.8)'
+                : 'rgba(24,28,36,0.92)',
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: isDarkMode ? '#2a2a2a' : 'transparent' },
+            ]}
+          >
             {person && (
               <ProfileCard
                 name={person.name}
@@ -229,10 +258,11 @@ export function ProfileModal({
                   isActuallyFriend
                     ? styles.removeFriendButton
                     : styles.addFriendButton,
-                  checkingFriendship && styles.disabledButton,
+                  (checkingFriendship || processingAction) &&
+                    styles.disabledButton,
                 ]}
                 onPress={handleAddFriend}
-                disabled={checkingFriendship}
+                disabled={checkingFriendship || processingAction}
               >
                 <Text
                   style={
@@ -243,6 +273,8 @@ export function ProfileModal({
                 >
                   {checkingFriendship
                     ? 'Loading...'
+                    : processingAction
+                    ? 'Processing...'
                     : isActuallyFriend
                     ? 'Remove Friend'
                     : 'Add Friend'}
@@ -266,8 +298,24 @@ export function ProfileModal({
               </View>
             </View>
 
-            <Pressable style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>Close</Text>
+            <Pressable
+              style={[
+                styles.closeButton,
+                {
+                  backgroundColor: isDarkMode ? '#3a3a3a' : '#232a36',
+                  borderColor: isDarkMode ? '#5a5a5a' : '#4fc3f7',
+                },
+              ]}
+              onPress={onClose}
+            >
+              <Text
+                style={[
+                  styles.closeButtonText,
+                  { color: isDarkMode ? colors.text : '#4fc3f7' },
+                ]}
+              >
+                Close
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -302,6 +350,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderRadius: 20,
     alignItems: 'center',
+    padding: 16,
   },
   buttonContainer: {
     width: '100%',

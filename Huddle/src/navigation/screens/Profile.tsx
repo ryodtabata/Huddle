@@ -40,75 +40,99 @@ export function Profile() {
     userProfile?.profileImage || 'https://i.pravatar.cc/250?u=default';
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.actionRow}>
-        <Pressable
-          style={[
-            styles.iconButton,
-            {
-              backgroundColor: colors.card,
-              borderColor: (colors as any).accent,
-              borderWidth: 1.5,
-            },
-          ]}
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <Ionicons
-            name="settings-outline"
-            size={22}
-            color={(colors as any).accent}
-          />
-          <Text
-            style={[styles.iconButtonText, { color: (colors as any).accent }]}
-          >
-            Settings
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.iconButton,
-            {
-              backgroundColor: colors.card,
-              borderColor: (colors as any).accent,
-              borderWidth: 1.5,
-            },
-          ]}
-          onPress={() => navigation.navigate('Friends')}
-        >
-          <Ionicons
-            name="people-outline"
-            size={22}
-            color={(colors as any).accent}
-          />
-          <Text
-            style={[styles.iconButtonText, { color: (colors as any).accent }]}
-          >
-            Friends
-          </Text>
-        </Pressable>
-      </View>
-
-      <ProfileCard
-        name={displayName}
-        age={displayAge}
-        bio={displayBio}
-        distance="Nearby"
-        imageUrl={displayImage}
-        verified={true}
-      />
-
-      <Pressable
-        onPress={() => navigation.navigate('EditProfile')}
-        style={({ pressed }) => [
-          styles.editButton,
+      <View
+        style={[
+          styles.contentWrapper,
           {
-            backgroundColor: pressed
-              ? (colors as any).accent + 'CC'
-              : (colors as any).accent,
+            backgroundColor:
+              colors.background === '#000000' ||
+              colors.background.includes('#1')
+                ? '#2a2a2a'
+                : 'transparent',
+            borderRadius: 16,
+            padding: 16,
+            margin: 8,
           },
         ]}
       >
-        <Text style={styles.editButtonText}>Edit Profile</Text>
-      </Pressable>
+        <View style={styles.actionRow}>
+          <Pressable
+            style={[
+              styles.iconButton,
+              {
+                backgroundColor:
+                  colors.background === '#000000' ||
+                  colors.background.includes('#1')
+                    ? '#3a3a3a'
+                    : colors.card,
+                borderColor: (colors as any).accent,
+                borderWidth: 1.5,
+              },
+            ]}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <Ionicons
+              name="settings-outline"
+              size={22}
+              color={(colors as any).accent}
+            />
+            <Text
+              style={[styles.iconButtonText, { color: (colors as any).accent }]}
+            >
+              Settings
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.iconButton,
+              {
+                backgroundColor:
+                  colors.background === '#000000' ||
+                  colors.background.includes('#1')
+                    ? '#3a3a3a'
+                    : colors.card,
+                borderColor: (colors as any).accent,
+                borderWidth: 1.5,
+              },
+            ]}
+            onPress={() => navigation.navigate('Friends')}
+          >
+            <Ionicons
+              name="people-outline"
+              size={22}
+              color={(colors as any).accent}
+            />
+            <Text
+              style={[styles.iconButtonText, { color: (colors as any).accent }]}
+            >
+              Friends
+            </Text>
+          </Pressable>
+        </View>
+
+        <ProfileCard
+          name={displayName}
+          age={displayAge}
+          bio={displayBio}
+          distance="Nearby"
+          imageUrl={displayImage}
+          verified={true}
+        />
+
+        <Pressable
+          onPress={() => navigation.navigate('EditProfile')}
+          style={({ pressed }) => [
+            styles.editButton,
+            {
+              backgroundColor: pressed
+                ? (colors as any).accent + 'CC'
+                : (colors as any).accent,
+            },
+          ]}
+        >
+          <Text style={styles.editButtonText}>Edit Profile</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -119,6 +143,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
+  },
+  contentWrapper: {
+    width: '95%',
+    alignItems: 'center',
   },
   loadingContainer: {
     justifyContent: 'center',

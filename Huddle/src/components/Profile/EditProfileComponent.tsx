@@ -146,7 +146,7 @@ const EditProfileComponent = () => {
   //feilds for profile editing
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
-  const [hashtags, setHashtags] = useState('');
+
   const [hideAge, setHideAge] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileImage, setProfileImage] = useState('');
@@ -307,7 +307,7 @@ const EditProfileComponent = () => {
       const updateData: {
         displayName: string;
         bio: string;
-        interests: string;
+
         hideAge: boolean;
         email: string | null;
         uid: string;
@@ -318,7 +318,6 @@ const EditProfileComponent = () => {
       } = {
         displayName: name.trim(),
         bio: bio.trim(),
-        interests: hashtags.trim(),
         hideAge: hideAge,
         email: user.email,
         uid: user.uid,
@@ -513,41 +512,6 @@ const EditProfileComponent = () => {
             multiline={true}
             maxLength={200}
           />
-          <InputField
-            label="Hashtags"
-            value={hashtags}
-            onChangeText={setHashtags}
-            placeholder="Add hashtags separated by spaces (e.g., #music #travel)"
-            maxLength={100}
-          />
-
-          <View style={styles.hashtagPreview}>
-            <Text
-              style={[styles.previewLabel, { color: (colors as any).accent }]}
-            >
-              Hashtag Preview:
-            </Text>
-            <View style={styles.hashtagContainer}>
-              {hashtags
-                .split(' ')
-                .filter((tag) => tag.startsWith('#') && tag.length > 1)
-                .map((tag, index) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles.hashtagTag,
-                      { backgroundColor: (colors as any).accent },
-                    ]}
-                  >
-                    <Text
-                      style={[styles.hashtagText, { color: colors.background }]}
-                    >
-                      {tag}
-                    </Text>
-                  </View>
-                ))}
-            </View>
-          </View>
         </View>
       </ScrollView>
 

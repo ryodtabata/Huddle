@@ -26,8 +26,12 @@ export const createConversation = async (
   user2Name
 ) => {
   try {
-    //Check if users are friends before creating conversation
+    console.log('Creating conversation between:', user1Id, 'and', user2Id);
+
+    // Check if users are friends before creating conversation
     const areFriends = await areUsersFriends(user1Id, user2Id);
+    console.log('Are friends?', areFriends);
+
     if (!areFriends) {
       throw new Error('You can only message people in your friends list');
     }
@@ -39,6 +43,7 @@ export const createConversation = async (
     const conversationDoc = await getDoc(conversationRef);
 
     if (!conversationDoc.exists()) {
+      console.log('Creating new conversation:', conversationId);
       // Create new conversation
       await setDoc(conversationRef, {
         participants: [user1Id, user2Id],
@@ -48,8 +53,10 @@ export const createConversation = async (
         },
         createdAt: serverTimestamp(),
         lastMessage: null,
-        lastMessageTime: null,
+        lastMessageTime: serverTimestamp(), // Initialize with current time
       });
+    } else {
+      console.log('Conversation already exists:', conversationId);
     }
 
     return conversationId;
@@ -138,8 +145,7 @@ export const getUserConversations = async (userId) => {
     const conversationsRef = collection(db, 'conversations');
     const q = query(
       conversationsRef,
-      where('participants', 'array-contains', userId),
-      orderBy('lastMessageTime', 'desc')
+      where('participants', 'array-contains', userId)
     );
 
     const snapshot = await getDocs(q);
@@ -159,6 +165,13 @@ export const getUserConversations = async (userId) => {
       });
     });
 
+    // Sort by lastMessageTime client-side (handles null values better)
+    conversations.sort((a, b) => {
+      const timeA = a.lastMessageTime?.seconds || 0;
+      const timeB = b.lastMessageTime?.seconds || 0;
+      return timeB - timeA; // Most recent first
+    });
+
     return conversations;
   } catch (error) {
     console.error('Error getting conversations:', error);
@@ -171,8 +184,7 @@ export const subscribeToConversations = (userId, callback) => {
   const conversationsRef = collection(db, 'conversations');
   const q = query(
     conversationsRef,
-    where('participants', 'array-contains', userId),
-    orderBy('lastMessageTime', 'desc')
+    where('participants', 'array-contains', userId)
   );
 
   return onSnapshot(q, (snapshot) => {
@@ -190,6 +202,14 @@ export const subscribeToConversations = (userId, callback) => {
         lastMessageTime: data.lastMessageTime,
       });
     });
+
+    // Sort by lastMessageTime client-side (handles null values better)
+    conversations.sort((a, b) => {
+      const timeA = a.lastMessageTime?.seconds || 0;
+      const timeB = b.lastMessageTime?.seconds || 0;
+      return timeB - timeA; // Most recent first
+    });
+
     callback(conversations);
   });
 };

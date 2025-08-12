@@ -1,4 +1,5 @@
 import { db } from './configFirebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 export const getUserProfile = async (userId) => {
   try {

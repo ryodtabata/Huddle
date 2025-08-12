@@ -6,8 +6,10 @@ import {
   FlatList,
   TextInput,
   Pressable,
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MessagesConvo from './MessagesConvo';
 import { NewMessageModal } from './NewMessageModal';
 import {
@@ -17,13 +19,12 @@ import {
 import { useUser } from '../../store/UserContext';
 import { useTheme } from '@react-navigation/native';
 
-//WANT TO UPDATE ALL OF THIS TOO
-
 const ListOfMessages = () => {
   const { user, userProfile } = useUser();
   const [search, setSearch] = useState('');
   const [conversations, setConversations] = useState<any[]>([]);
   const [filteredConvos, setFilteredConvos] = useState<any[]>([]);
+  const insets = useSafeAreaInsets();
   type Conversation = {
     id: string;
     name: string;
@@ -49,7 +50,7 @@ const ListOfMessages = () => {
   }, [user]);
 
   useEffect(() => {
-    //this will apply the search filter
+    // This will apply the search filter
     const filtered = conversations.filter((convo) =>
       convo.name.toLowerCase().includes(search.toLowerCase())
     );
@@ -84,33 +85,39 @@ const ListOfMessages = () => {
     }
   };
 
-  // search bar and conversation list
+  // Search bar and conversation list
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TextInput
-          style={[
-            styles.searchBar,
-            {
-              backgroundColor: colors.card,
-              color: colors.text,
-            },
-          ]}
-          placeholder="Search Messages"
-          placeholderTextColor={colors.text + '99'}
-          value={search}
-          onChangeText={setSearch}
-        />
-        <Pressable
-          style={[
-            styles.plusButton,
-            { backgroundColor: (colors as any).accent },
-          ]}
-          onPress={() => setShowNewMessageModal(true)}
-        >
-          <Ionicons name="add" size={25} color={colors.background} />
-        </Pressable>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? 8 : 16 }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Messages</Text>
+        <View style={styles.searchRow}>
+          <TextInput
+            style={[
+              styles.searchBar,
+              {
+                backgroundColor: colors.card,
+                color: colors.text,
+              },
+            ]}
+            placeholder="Search Messages"
+            placeholderTextColor={colors.text + '99'}
+            value={search}
+            onChangeText={setSearch}
+          />
+          <Pressable
+            style={[
+              styles.plusButton,
+              { backgroundColor: (colors as any).accent },
+            ]}
+            onPress={() => setShowNewMessageModal(true)}
+          >
+            <Ionicons name="add" size={25} color={colors.background} />
+          </Pressable>
+        </View>
       </View>
+
       <FlatList
         data={filteredConvos}
         keyExtractor={(item) => item.id}
@@ -154,6 +161,7 @@ const ListOfMessages = () => {
         }
         contentContainerStyle={{ flexGrow: 1 }}
       />
+
       {selectedItem && (
         <MessagesConvo
           item={selectedItem}
@@ -167,33 +175,39 @@ const ListOfMessages = () => {
         onClose={() => setShowNewMessageModal(false)}
         onSelectFriend={handleSelectFriend}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 32,
-    paddingHorizontal: 0,
+    backgroundColor: 'transparent',
   },
   header: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 8,
   },
   searchBar: {
     flex: 1,
     borderRadius: 24,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     fontSize: 16,
     marginRight: 12,
   },
   plusButton: {
     borderRadius: 20,
-    padding: 4,
+    padding: 8,
     elevation: 2,
   },
   convoItem: {

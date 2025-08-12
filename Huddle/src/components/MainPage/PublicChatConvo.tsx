@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -49,17 +50,27 @@ const PublicChatConvo = (props: any) => {
   const handleSend = async () => {
     if (input.trim() === '' || !chat?.id || !user || !userProfile) return;
     setLoading(true);
+
+    console.log('Sending message with:', {
+      chatId: chat.id,
+      senderId: user.uid,
+      senderName: userProfile.displayName || user.displayName || 'Unknown User',
+      userLocation: userProfile.location,
+    });
+
     try {
       await sendPublicMessage(
         chat.id,
         user.uid,
-        userProfile.displayName || user.email || 'Unknown',
-        input.trim()
+        userProfile.displayName || user.displayName || 'Unknown User',
+        input.trim(),
+        userProfile.profileImage,
+        userProfile.location // Pass user location for proximity chat recreation
       );
       setInput('');
     } catch (error) {
       console.error('Error sending message:', error);
-      Alert.alert('Error', 'Failed to send message');
+      Alert.alert('Error', 'Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -124,42 +135,86 @@ const PublicChatConvo = (props: any) => {
               msg.id?.toString() ?? Math.random().toString()
             }
             renderItem={({ item: msg }) => (
-              <View
-                style={[
-                  styles.messageBubble,
-                  {
-                    alignSelf:
-                      msg.senderId === user?.uid ? 'flex-end' : 'flex-start',
-                    backgroundColor:
-                      msg.senderId === user?.uid
-                        ? (colors as any).accent
-                        : colors.card,
-                  },
-                ]}
-              >
-                {msg.senderId !== user?.uid && (
-                  <Text
-                    style={[styles.sender, { color: (colors as any).accent }]}
-                  >
-                    {msg.sender}
-                  </Text>
-                )}
-                <Text
+              <View style={styles.messageContainer}>
+                <View
                   style={[
-                    styles.messageText,
+                    styles.messageRow,
                     {
-                      color:
-                        msg.senderId === user?.uid
-                          ? colors.background
-                          : colors.text,
+                      flexDirection:
+                        msg.senderId === user?.uid ? 'row-reverse' : 'row',
                     },
                   ]}
                 >
-                  {msg.text}
-                </Text>
-                <Text style={[styles.time, { color: colors.text + '99' }]}>
-                  {msg.time}
-                </Text>
+                  {/* Profile Picture - only show for other users */}
+                  {msg.senderId !== user?.uid && (
+                    <View style={styles.avatarContainer}>
+                      {msg.senderProfileImage ? (
+                        <Image
+                          source={{ uri: msg.senderProfileImage }}
+                          style={styles.avatar}
+                        />
+                      ) : (
+                        <View
+                          style={[
+                            styles.avatarPlaceholder,
+                            { backgroundColor: (colors as any).accent },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.avatarText,
+                              { color: colors.background },
+                            ]}
+                          >
+                            {msg.sender ? msg.sender[0]?.toUpperCase() : '?'}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+
+                  {/* Message Bubble */}
+                  <View
+                    style={[
+                      styles.messageBubble,
+                      {
+                        backgroundColor:
+                          msg.senderId === user?.uid
+                            ? (colors as any).accent
+                            : colors.card,
+                        marginLeft: msg.senderId === user?.uid ? 8 : 0,
+                        marginRight: msg.senderId !== user?.uid ? 8 : 0,
+                      },
+                    ]}
+                  >
+                    {msg.senderId !== user?.uid && (
+                      <Text
+                        style={[
+                          styles.sender,
+                          { color: (colors as any).accent },
+                        ]}
+                      >
+                        {msg.sender}
+                      </Text>
+                    )}
+                    <Text
+                      style={[
+                        styles.messageText,
+                        {
+                          color:
+                            msg.senderId === user?.uid
+                              ? colors.background
+                              : colors.text,
+                        },
+                      ]}
+                    >
+                      {msg.text}
+                    </Text>
+                    <Text style={[styles.time, { color: colors.text + '99' }]}>
+                      {msg.time}
+                    </Text>
+                  </View>
+                </View>
               </View>
             )}
             contentContainerStyle={styles.messagesList}
@@ -261,12 +316,38 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'flex-end',
   },
+  messageContainer: {
+    marginBottom: 8,
+  },
+  messageRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    maxWidth: '85%',
+  },
+  avatarContainer: {
+    marginBottom: 4,
+  },
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
+  avatarPlaceholder: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   messageBubble: {
-    maxWidth: '75%',
+    flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 22,
-    marginBottom: 8,
   },
   sender: {
     fontSize: 12,

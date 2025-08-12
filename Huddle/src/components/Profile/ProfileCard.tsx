@@ -10,7 +10,6 @@ interface ProfileCardProps {
   distance: string;
   imageUrl: string;
   verified?: boolean;
-  tags?: string[];
 }
 
 export const ProfileCard: React.FC<ProfileCardProps> = ({
@@ -20,12 +19,22 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   distance,
   imageUrl,
   verified = false,
-  tags = [],
 }) => {
   const { colors } = useTheme();
+  const isDarkMode =
+    colors.background === '#000000' || colors.background.includes('#1');
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.card }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: isDarkMode ? '#3a3a3a' : colors.card,
+          borderWidth: isDarkMode ? 1 : 0,
+          borderColor: isDarkMode ? '#4a4a4a' : 'transparent',
+        },
+      ]}
+    >
       <View style={styles.avatarContainer}>
         <Image
           source={{ uri: imageUrl }}
@@ -35,7 +44,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           <View
             style={[
               styles.verifiedIcon,
-              { backgroundColor: colors.background },
+              { backgroundColor: isDarkMode ? '#4a4a4a' : colors.background },
             ]}
           >
             <Ionicons
@@ -57,33 +66,13 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         style={[
           styles.bioContainer,
           {
-            backgroundColor: colors.background,
+            backgroundColor: isDarkMode ? '#2a2a2a' : colors.background,
             borderWidth: 1,
-            borderColor: colors.card, // or use '#ccc' for a fixed grey
+            borderColor: isDarkMode ? '#4a4a4a' : colors.card,
           },
         ]}
       >
         <Text style={[styles.bio, { color: colors.text }]}>{bio}</Text>
-      </View>
-      <View style={styles.tags}>
-        {(tags.length > 0 ? tags : ['#anime', '#coding', '#music']).map(
-          (tag, idx) => (
-            <Text
-              key={idx}
-              style={[
-                styles.tag,
-                {
-                  backgroundColor: colors.background,
-                  color: colors.text,
-                  borderColor: colors.card,
-                  borderWidth: 1,
-                },
-              ]}
-            >
-              {tag}
-            </Text>
-          )
-        )}
       </View>
     </View>
   );
@@ -145,14 +134,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
-  tags: {
-    flexDirection: 'row',
-    gap: 8,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginBottom: 12,
-    marginTop: 0,
-  },
+
   tag: {
     paddingVertical: 6,
     paddingHorizontal: 12,

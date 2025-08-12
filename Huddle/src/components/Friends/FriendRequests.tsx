@@ -11,18 +11,20 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import {
   getPendingFriendRequests,
+  subscribeToPendingFriendRequests,
   acceptFriendRequest,
   declineFriendRequest,
 } from '../../firebase/friendsService';
 import { useUser } from '../../store/UserContext';
 
-//THIS DOES NOT WORK RIGHT NOW!
-
 interface FriendRequest {
   id: string;
   fromUserId: string;
   fromUserName: string;
+  toUserId: string;
+  toUserName: string;
   createdAt: any;
+  status: string;
 }
 
 interface FriendRequestsProps {
@@ -38,9 +40,31 @@ export function FriendRequests({ onRequestCountChange }: FriendRequestsProps) {
   );
 
   useEffect(() => {
-    fetchFriendRequests();
+    if (!user?.uid) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
+    // Set up real-time listener for friend requests
+    const unsubscribe = subscribeToPendingFriendRequests(
+      user.uid,
+      (requestsData: FriendRequest[]) => {
+        console.log('Real-time friend requests update:', requestsData);
+        setRequests(requestsData);
+        setLoading(false);
+        // Notify parent about count change when requests update
+        onRequestCountChange?.();
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
   }, [user?.uid]);
 
+  // Keep the manual fetch function for backup/refresh
   const fetchFriendRequests = async () => {
     if (!user?.uid) {
       setLoading(false);
@@ -65,12 +89,14 @@ export function FriendRequests({ onRequestCountChange }: FriendRequestsProps) {
     setProcessingRequests((prev) => new Set(prev).add(request.id));
 
     try {
+      console.log('Accepting friend request:', request);
       await acceptFriendRequest(request.id, request.fromUserId, user!.uid);
 
-      //remove the request from the list
+      // Remove the request from the list immediately for better UX
+      // The real-time listener will also update, but this provides immediate feedback
       setRequests((prev) => prev.filter((req) => req.id !== request.id));
 
-      //notify parent component about count change
+      // Notify parent component about count change
       onRequestCountChange?.();
 
       Alert.alert(
@@ -107,14 +133,15 @@ export function FriendRequests({ onRequestCountChange }: FriendRequestsProps) {
             setProcessingRequests((prev) => new Set(prev).add(request.id));
 
             try {
+              console.log('Declining friend request:', request);
               await declineFriendRequest(request.id);
 
-              //remove from the list
+              // Remove from the list immediately for better UX
               setRequests((prev) =>
                 prev.filter((req) => req.id !== request.id)
               );
 
-              //notify parent component about count change
+              // Notify parent component about count change
               onRequestCountChange?.();
 
               Alert.alert(

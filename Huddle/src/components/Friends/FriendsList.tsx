@@ -11,8 +11,6 @@ export function FriendsList({ onMessage }: FriendsListProps) {
   const { user } = useUser();
   const [friends, setFriends] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
-
-  //THIS DOES NOT WORK
   useEffect(() => {
     const fetchFriends = async () => {
       if (!user?.uid) {
@@ -24,14 +22,15 @@ export function FriendsList({ onMessage }: FriendsListProps) {
         const friendsData = await getUserFriends(user.uid);
 
         const mapped = friendsData.map((friend: any) => ({
-          id: friend.uid,
-          name: friend.displayName || 'Unknown',
+          id: friend.uid || friend.id, // Ensure we have an ID field for consistency
+          name: friend.displayName || friend.name || 'Unknown',
           age: friend.age || 0,
           bio: friend.bio || '',
           distance: 'Friend', // For friends, we show "Friend" instead of distance
-          imageUrl: friend.profileImage || null,
+          imageUrl:
+            friend.profileImage ||
+            `https://i.pravatar.cc/150?u=${friend.uid || friend.id}`,
           verified: friend.verified || false,
-          tags: friend.tags || [],
         }));
 
         setFriends(mapped);

@@ -15,7 +15,37 @@ import {
 } from 'firebase/firestore';
 import { db } from './configFirebase';
 
-//need to go and fix this
+// Check if friend request already exists
+export const checkExistingFriendRequest = async (fromUserId, toUserId) => {
+  try {
+    const requestsRef = collection(db, 'friendRequests');
+
+    // Check if there's already a pending request between these users (either direction)
+    const q1 = query(
+      requestsRef,
+      where('fromUserId', '==', fromUserId),
+      where('toUserId', '==', toUserId),
+      where('status', '==', 'pending')
+    );
+
+    const q2 = query(
+      requestsRef,
+      where('fromUserId', '==', toUserId),
+      where('toUserId', '==', fromUserId),
+      where('status', '==', 'pending')
+    );
+
+    const [snapshot1, snapshot2] = await Promise.all([
+      getDocs(q1),
+      getDocs(q2),
+    ]);
+
+    return !snapshot1.empty || !snapshot2.empty;
+  } catch (error) {
+    console.error('Error checking existing friend request:', error);
+    return false;
+  }
+};
 
 // Send friend request
 export const sendFriendRequest = async (
@@ -25,8 +55,25 @@ export const sendFriendRequest = async (
   toUserName
 ) => {
   try {
+    console.log('Sending friend request from:', fromUserId, 'to:', toUserId);
+
+    // Check if users are already friends
+    const alreadyFriends = await areUsersFriends(fromUserId, toUserId);
+    if (alreadyFriends) {
+      throw new Error('You are already friends with this user');
+    }
+
+    // Check if request already exists
+    const requestExists = await checkExistingFriendRequest(
+      fromUserId,
+      toUserId
+    );
+    if (requestExists) {
+      throw new Error('Friend request already exists between these users');
+    }
+
     const requestRef = collection(db, 'friendRequests');
-    await addDoc(requestRef, {
+    const docRef = await addDoc(requestRef, {
       fromUserId,
       toUserId,
       fromUserName,
@@ -34,6 +81,9 @@ export const sendFriendRequest = async (
       status: 'pending',
       createdAt: serverTimestamp(),
     });
+
+    console.log('Friend request created with ID:', docRef.id);
+    return docRef.id;
   } catch (error) {
     console.error('Error sending friend request:', error);
     throw error;
@@ -70,10 +120,12 @@ export const acceptFriendRequest = async (requestId, fromUserId, toUserId) => {
 // Get user's friends list
 export const getUserFriends = async (userId) => {
   try {
+    console.log('Getting friends for user:', userId);
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
       const userData = userDoc.data();
       const friendIds = userData.friends || [];
+      console.log('Friend IDs found:', friendIds);
 
       // Get friend profiles
       const friends = [];
@@ -82,17 +134,22 @@ export const getUserFriends = async (userId) => {
         if (friendDoc.exists()) {
           const friendData = friendDoc.data();
           friends.push({
-            id: friendData.uid,
-            uid: friendData.uid,
+            id: friendData.uid || friendId, // Use uid from data or fallback to friendId
+            uid: friendData.uid || friendId,
             name: friendData.displayName || friendData.email || 'Unknown User',
             displayName: friendData.displayName,
             email: friendData.email,
             profileImage: friendData.profileImage,
-            bio: friendData.bio,
+            bio: friendData.bio || '',
+            age: friendData.age || 0,
+            verified: friendData.verified || false,
           });
+        } else {
+          console.warn('Friend document not found for ID:', friendId);
         }
       }
 
+      console.log('Mapped friends data:', friends);
       return friends;
     }
     return [];
@@ -137,14 +194,69 @@ export const getPendingFriendRequests = async (userId) => {
         id: doc.id,
         fromUserId: data.fromUserId,
         fromUserName: data.fromUserName,
+        toUserId: data.toUserId,
+        toUserName: data.toUserName,
         createdAt: data.createdAt,
+        status: data.status,
       });
+    });
+
+    // Sort by creation date (newest first)
+    requests.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) return 0;
+      return b.createdAt.seconds - a.createdAt.seconds;
     });
 
     return requests;
   } catch (error) {
     console.error('Error getting friend requests:', error);
     throw error;
+  }
+};
+
+// Listen to pending friend requests (real-time)
+export const subscribeToPendingFriendRequests = (userId, callback) => {
+  try {
+    const requestsRef = collection(db, 'friendRequests');
+    const q = query(
+      requestsRef,
+      where('toUserId', '==', userId),
+      where('status', '==', 'pending')
+    );
+
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const requests = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          requests.push({
+            id: doc.id,
+            fromUserId: data.fromUserId,
+            fromUserName: data.fromUserName,
+            toUserId: data.toUserId,
+            toUserName: data.toUserName,
+            createdAt: data.createdAt,
+            status: data.status,
+          });
+        });
+
+        // Sort by creation date (newest first)
+        requests.sort((a, b) => {
+          if (!a.createdAt || !b.createdAt) return 0;
+          return b.createdAt.seconds - a.createdAt.seconds;
+        });
+
+        callback(requests);
+      },
+      (error) => {
+        console.error('Error in friend requests listener:', error);
+        callback([]);
+      }
+    );
+  } catch (error) {
+    console.error('Error setting up friend requests listener:', error);
+    return () => {}; // Return empty unsubscribe function
   }
 };
 
